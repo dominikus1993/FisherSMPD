@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Utils.fs" />
+    <Compile Include="Database.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 
