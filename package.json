@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "main": "app/main.js",
+  "scripts": {
+    "start": "cd src/Main && dotnet fable webpack --port free -- -w --config webpack.config.js",
+    "build": "cd src/Main && dotnet fable webpack --port free -- -p --config webpack.config.js",
+    "launch": "electron ."
+  },
+  "dependencies": {
+    "babel-runtime": "6.26.0"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.0.0",
+    "@babel/core": "7.1.2",
+    "babel-loader": "8.0.4",
+    "@babel/plugin-transform-runtime": "7.1.0",
+    "@babel/preset-env": "7.1.0",
+    "electron": "^3.0.3",
+    "fable-loader": "^2.0.0",
+    "loglevel": "^1.6.1",
+    "webpack": "^4.20.2"
+  }
+}
