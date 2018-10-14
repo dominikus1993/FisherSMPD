@@ -6,12 +6,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Fisher.Tests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Expecto" Version="8.4.2" />
     <PackageReference Include="Expecto.TestResults" Version="8.4.2" />
+    <PackageReference Include="MathNet.Numerics" Version="4.5.1" />
+    <PackageReference Include="MathNet.Numerics.FSharp" Version="4.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fisher.Common\Fisher.Common.fsproj" />
   </ItemGroup>
 
 </Project>
