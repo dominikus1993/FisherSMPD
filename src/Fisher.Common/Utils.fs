@@ -6,7 +6,7 @@ open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Complex
 
 module Fisher =
-    let F(matrixA: double seq)(matrixB: double seq)  =
+    let F(matrixA: Vector<float>)(matrixB: Vector<float>)  =
         (Statistics.Mean(matrixA) - Statistics.Mean(matrixB)) / (Statistics.StandardDeviation(matrixA) / Statistics.StandardDeviation(matrixB))
 
     let getAverageVector(matrix: Matrix<float>) =
