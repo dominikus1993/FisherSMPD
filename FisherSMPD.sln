@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fisher.App", "src\Fisher.Ap
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fisher.Common", "src\Fisher.Common\Fisher.Common.fsproj", "{8D6DB785-0014-40A0-B36E-EF3AE771A338}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fisher.Common.Tests", "src\Fisher.Common.Tests\Fisher.Common.Tests.fsproj", "{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,9 +48,22 @@ Global
 		{8D6DB785-0014-40A0-B36E-EF3AE771A338}.Release|x64.Build.0 = Release|Any CPU
 		{8D6DB785-0014-40A0-B36E-EF3AE771A338}.Release|x86.ActiveCfg = Release|Any CPU
 		{8D6DB785-0014-40A0-B36E-EF3AE771A338}.Release|x86.Build.0 = Release|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Debug|x64.Build.0 = Debug|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Debug|x86.Build.0 = Debug|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Release|x64.ActiveCfg = Release|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Release|x64.Build.0 = Release|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Release|x86.ActiveCfg = Release|Any CPU
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2660AE0A-5A51-4202-8B0C-E8FBE71F37B0} = {43B92DE1-D05A-4DDD-8FCC-285A679192A0}
 		{8D6DB785-0014-40A0-B36E-EF3AE771A338} = {43B92DE1-D05A-4DDD-8FCC-285A679192A0}
+		{E1AA70F4-4802-4288-94E7-06A35BEE9A6C} = {43B92DE1-D05A-4DDD-8FCC-285A679192A0}
 	EndGlobalSection
 EndGlobal

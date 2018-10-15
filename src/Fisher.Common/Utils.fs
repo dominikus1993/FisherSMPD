@@ -15,7 +15,16 @@ module Fisher =
                         let mean = v |> Statistics.Mean
                         v |> Vector.map(fun _ -> mean))
 
+    let getS (matrix: Matrix<float>)(matrixAvg: Matrix<float>) =
+        let diff = matrix - matrixAvg
+        diff * diff.Transpose()
+
+
     let FMD(matrixA: Matrix<float>)(matrixB: Matrix<float>) =
         let ua = matrixA |> getAverageVector
         let ub = matrixB |> getAverageVector
+        let diffrenceA = (matrixA - ua)
+        let diffrenceB = (matrixB - ub)
+        let sa = diffrenceA * diffrenceA.Transpose()
+        let sb = diffrenceB * diffrenceB.Transpose()
         2

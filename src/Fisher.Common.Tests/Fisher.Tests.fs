@@ -13,4 +13,13 @@ let testFisher =
                 let arrays = subject |> Matrix.toRowArrays |> Array.toSeq
                 Expect.sequenceEqual arrays ([|[|3.0; 3.0; 3.0|];[|4.0; 4.0; 4.0|]|]) ""
         ]
+        testList "S" [
+            testCase "sa" <| fun _ ->
+                let matrix = matrix [[ 0.0; 1.0; 1.0; 2.0]
+                                     [ -3.0; -2.0; -2.0; -1.0 ]]
+                let avgMat = matrix |> Fisher.Common.Fisher.getAverageVector
+                let subject = Fisher.Common.Fisher.getS matrix avgMat |> Matrix.toRowArrays |> Array.toSeq
+                Expect.sequenceEqual subject ([|[|2.0; 2.0;|];[|2.0; 2.0;|]|]) ""
+
+        ]
     ]
