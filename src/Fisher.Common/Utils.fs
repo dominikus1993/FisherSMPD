@@ -7,7 +7,7 @@ open MathNet.Numerics.LinearAlgebra.Complex
 
 module Probability =
     let getPossibleCombinations m k =
-        [0..m] |> List.map(fun x -> [0..m])
+        let list = [0..m] |> List.map(fun x -> [0..m])
         [[1; 2]]
 
 module Fisher =
