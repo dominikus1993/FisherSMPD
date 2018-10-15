@@ -23,3 +23,13 @@ let testFisher =
 
         ]
     ]
+
+[<Tests>]
+let testProb =
+    testList "Probability" [
+        testList "getPossibleCombinations" [
+            testCase "Test combinations" <| fun _ ->
+                let subject = Fisher.Common.Probability.getPossibleCombinations 4 2
+                Expect.sequenceEqual subject [[0;1]; [0;2]; [0;3]; [1;2]; [1;3]; [2;3]] ""
+        ]
+    ]
