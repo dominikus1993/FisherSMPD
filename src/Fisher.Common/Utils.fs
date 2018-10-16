@@ -5,9 +5,9 @@ open MathNet.Numerics.Statistics
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Complex
 
-module Probability =
-    let getPossibleCombinations m k =
-        [0..m] |> List.map(fun x -> )
+// module Probability =
+//     let getPossibleCombinations m k =
+//         [0..m] |> List.map(fun x -> )
 
 module Fisher =
     let F(matrixA: Vector<float>)(matrixB: Vector<float>)  =
