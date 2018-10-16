@@ -6,9 +6,22 @@ open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Complex
 
 module Probability =
-    let getPossibleCombinations m k =
-        let list = [0..m] |> List.map(fun x -> [0..m])
-        [[1; 2]]
+    let getPossibleCombinations m n =
+        let rec fC prefix m from = seq {
+            let rec loopFor f = seq {
+                match f with
+                | [] -> ()
+                | x::xs ->
+                    yield (x, fC [] (m-1) xs)
+                    yield! loopFor xs
+            }
+            if m = 0 then yield prefix
+            else
+                for (i, s) in loopFor from do
+                    for x in s do
+                        yield prefix@[i]@x
+        }
+        fC [] m [0..(n-1)]
 
 module Fisher =
     let F(matrixA: Vector<float>)(matrixB: Vector<float>)  =
