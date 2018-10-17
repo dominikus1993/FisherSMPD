@@ -47,4 +47,5 @@ module Fisher =
         let sa = getS matrixA ua
         let sb = getS matrixB ub
         let det = (sa - sb) |> Matrix.determinant
-        2
+        let dist = ua.Row(0) |> distance (ub.Row(0))
+        dist / det
