@@ -1,4 +1,9 @@
 namespace Fisher.Common
 
 module Database =
-    let a = 2
+    open System.IO
+
+    let readAsync (stream: Stream) =
+        async {
+            return stream.Length;
+        } |> Async.StartAsTask

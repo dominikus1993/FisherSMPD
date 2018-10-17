@@ -3,7 +3,6 @@ namespace Fisher.Common
 open System
 open MathNet.Numerics.Statistics
 open MathNet.Numerics.LinearAlgebra
-open MathNet.Numerics.LinearAlgebra.Complex
 
 module Probability =
     let getPossibleCombinations m n =
