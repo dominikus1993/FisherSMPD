@@ -5,12 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Database.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hopac" Version="0.4.1" />
     <PackageReference Include="MathNet.Numerics" Version="4.5.1" />
     <PackageReference Include="MathNet.Numerics.FSharp" Version="4.5.1" />
   </ItemGroup>

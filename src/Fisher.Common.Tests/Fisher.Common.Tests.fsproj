@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Database.Tests.fs" />
     <Compile Include="Fisher.Tests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -20,5 +21,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Fisher.Common\Fisher.Common.fsproj" />
   </ItemGroup>
+    <ItemGroup>
+    <Content Include="Maple_Oak.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+</ItemGroup>
 
 </Project>
