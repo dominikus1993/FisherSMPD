@@ -21,7 +21,9 @@ Welcome to your new app.
         {
             using (var s = await file.OpenReadAsync())
             {
-                Console.WriteLine(await readAsync(s));
+                Console.WriteLine("Test");
+                var a = await read(s);
+                Console.WriteLine(a);
             }
         }
     }

@@ -1,46 +1,55 @@
 namespace Fisher.Common
 
-open Hopac
+open FSharp.Control
 module Database =
     open System.Text.RegularExpressions
     open System.IO
     open System.Linq
     open System
 
-    open Hopac
-    open Hopac
 
-    open System.IO
-    type LineType = 
+    type LineType =
         | MetaData of numberOfFeatures: int
         | FeatureData of name: string * features: int seq
-        | None 
-    
-    let (|MetaData|FeatureData|None|) input = 
-        let firstLineMatch = Regex.Match(input, """^(\d+)""")
-        let nextMatch = Regex.Matches(input ,"^(\w+ \w+)|(\d\.\d+|\d+)")
-        if firstLineMatch.Success then
-            MetaData(Int32.Parse(firstLineMatch.Value))
-        elif nextMatch.Count > 0 then
-            let name = nextMatch.[0]
-            let rest = nextMatch.Cast<Match>() |> Seq.skip 1 |> Seq.map(fun x -> Int32.Parse(x.Value))
-            FeatureData(name.Value, rest)
-        else 
-            None
-    
-    let readAsync (stream: Stream) =
+        | Nothing
+
+    let (|MetaData|FeatureData|Nothing|) input =
+        if String.IsNullOrEmpty input then
+            Nothing
+        else
+            let firstLineMatch = Regex.Match(input, """^(\d+)""")
+            let nextMatch = Regex.Matches(input ,"^(\w+ \w+)|(\d\.\d+|\d+)")
+            if firstLineMatch.Success then
+                MetaData(Int32.Parse(firstLineMatch.Value))
+            elif nextMatch.Count > 0 then
+                let name = nextMatch.[0]
+                let rest = nextMatch.Cast<Match>() |> Seq.skip 1 |> Seq.map(fun x -> Double.Parse(x.Value)) |> Seq.toList
+                FeatureData(name.Value.Split(' ').[0], rest)
+            else
+                Nothing
+
+    let read (stream: Stream) =
+        // let result = Seq.unfold (fun _ ->
+        //                         let lineT = reader.ReadLineAsync()
+        //                         lineT.Wait()
+        //                         Some(lineT.Result, ())
+        //                     ) ()
+        //             |> Seq.take 10000
+        //             |> Seq.fold(fun acc x ->  match x with
+        //                                       | MetaData(d) ->
+        //                                           { acc with FeaturesCount = d}
+        //                                       | FeatureData(n, values) ->
+        //                                           match acc.Features.TryFind(n) with
+        //                                           | Some(features) ->
+        //                                               { acc with Features = acc.Features |> Map.add n (values::features)}
+        //                                           | None ->
+        //                                               { acc with Features = acc.Features |> Map.add n [values]}
+        //                                       | _ -> acc) { FeaturesCount  = 0; Features = [] |> Map.ofList }
         async {
-            let a = Job.using <| new StreamReader(stream) <| fun reader ->
-                        Stream.indefinitely <| job { return! reader.ReadLineAsync() }
-                        |> Stream.take 10000L
-                        |> Stream.foldFun(fun acc x -> match x with MetaData(d) -> { acc with Features = d} | _ -> acc) { Features  = 0}     
-                        |> Job.start
-                                                              
-            match line2 with
-            | MetaData(c) ->
-                return { Features = c }
-            | FeatureData(n, fatures) ->          
-                return { Features = 3213321 }
-            | None -> 
-               return { Features = 1313 } 
+            let reader = new StreamReader(stream)
+            let asyncTasks = Seq.unfold (fun _ ->
+                                let lineT = reader.ReadLineAsync() |> Async.AwaitTask
+                                Some(lineT, ())) ()
+            let! num = asyncTasks |> Async.Parallel
+            return num;
         } |> Async.StartAsTask
