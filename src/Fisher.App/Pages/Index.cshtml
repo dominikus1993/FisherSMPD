@@ -1,10 +1,6 @@
 ﻿@page "/"
 @using System.IO
 @using Blazor.FileReader
-@using NodaTime.TimeZones
-@using NodaTime
-@using NodaTime.Extensions
-@using NodaTime.Text
 @using static Fisher.Common.Database
 @using static Fisher.Common.Say
 @inject IFileReaderService fileReaderService;
@@ -26,13 +22,6 @@ Welcome to your new app.
             using (var s = await file.OpenReadAsync())
             {
                 Console.WriteLine(await readAsync(s));
-                var pattern = InstantPattern.CreateWithInvariantCulture("ddMMyyHHmmss");
-                                                                                var parseResult = pattern.Parse("150713192900");
-                if (!parseResult.Success)
-                    throw new InvalidDataException("...whatever...");
-                var instant = DateTime.UtcNow;
-                var a = instant.ToInstant();
-                var b = a.InZone(DateTimeZone.ForOffset(Off))
             }
         }
     }

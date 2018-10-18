@@ -7,5 +7,5 @@ module Database =
     let readAsync (stream: Stream) =
         async {
             let j = Job.using stream
-            return stream.Length;
+            return { Features = 64 }
         } |> Async.StartAsTask

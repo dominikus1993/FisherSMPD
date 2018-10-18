@@ -11,7 +11,7 @@ let testFisher =
             testCaseAsync "Test1" <| async {
                 use file = File.OpenRead("./Maple_Oak.txt")
                 let! subject = Database.readAsync file |> Async.AwaitTask
-                Expect.equal true true ""
+                Expect.equal subject.Features 64 ""
             }
         ]
     ]
