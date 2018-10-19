@@ -23,33 +23,26 @@ module Database =
                 MetaData(Int32.Parse(firstLineMatch.Value))
             elif nextMatch.Count > 0 then
                 let name = nextMatch.[0]
+                printfn "%A" (nextMatch.Cast<Match>() |> Seq.filter(fun x -> Double.TryParse()))
                 let rest = nextMatch.Cast<Match>() |> Seq.skip 1 |> Seq.map(fun x -> Double.Parse(x.Value)) |> Seq.toList
                 FeatureData(name.Value.Split(' ').[0], rest)
             else
                 Nothing
 
     let read (stream: Stream) =
-        // let result = Seq.unfold (fun _ ->
-        //                         let lineT = reader.ReadLineAsync()
-        //                         lineT.Wait()
-        //                         Some(lineT.Result, ())
-        //                     ) ()
-        //             |> Seq.take 10000
-        //             |> Seq.fold(fun acc x ->  match x with
-        //                                       | MetaData(d) ->
-        //                                           { acc with FeaturesCount = d}
-        //                                       | FeatureData(n, values) ->
-        //                                           match acc.Features.TryFind(n) with
-        //                                           | Some(features) ->
-        //                                               { acc with Features = acc.Features |> Map.add n (values::features)}
-        //                                           | None ->
-        //                                               { acc with Features = acc.Features |> Map.add n [values]}
-        //                                       | _ -> acc) { FeaturesCount  = 0; Features = [] |> Map.ofList }
         async {
-            let reader = new StreamReader(stream)
-            let asyncTasks = Seq.unfold (fun _ ->
-                                let lineT = reader.ReadLineAsync() |> Async.AwaitTask
-                                Some(lineT, ())) ()
-            let! num = asyncTasks |> Async.Parallel
-            return num;
+            use reader = new StreamReader(stream)
+            let! file = reader.ReadToEndAsync() |> Async.AwaitTask
+            let lines =  file.Split('\n');
+            let result = lines |> Seq.fold(fun acc x ->  match x with
+                                                         | MetaData(d) ->
+                                                             { acc with FeaturesCount = d}
+                                                         | FeatureData(n, values) ->
+                                                             match acc.Features.TryFind(n) with
+                                                             | Some(features) ->
+                                                                 { acc with Features = acc.Features |> Map.add n (values::features)}
+                                                             | None ->
+                                                                 { acc with Features = acc.Features |> Map.add n [values]}
+                                                         | _ -> acc) { FeaturesCount  = 0; Features = [] |> Map.ofList }
+            return result
         } |> Async.StartAsTask
