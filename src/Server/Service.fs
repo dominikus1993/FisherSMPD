@@ -1,6 +1,7 @@
 module Service
 open System.IO
 open Types
+open Database
 
 type Msg =
     | Store of state: State
@@ -20,5 +21,7 @@ let Agent =
         loop { FeaturesCount = 0; Features = [] |> Map.ofList })
 
 let uploadDatabaseFile (stream: Stream) =
-    let state = 2
-    3
+    async {
+        let! state = read stream
+        Agent.Post(Store(state))
+    }
