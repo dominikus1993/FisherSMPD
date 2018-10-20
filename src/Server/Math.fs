@@ -3,7 +3,7 @@ module FisherMath
 open System
 open MathNet.Numerics.Statistics
 open MathNet.Numerics.LinearAlgebra
-open MathNet.Numerics.LinearAlgebra
+
 let getPossibleCombinations m n =
     let rec fC prefix m from = seq {
         let rec loopFor f = seq {

@@ -11,7 +11,4 @@ module Route =
 /// A type that specifies the communication protocol between client and server
 /// to learn more, read the docs at https://zaid-ajaj.github.io/Fable.Remoting/src/basics.html
 type ICounterApi =
-    { initialCounter : unit -> Async<Counter> }
-
-type IFisherApi =
-    { uploadDatabase: Stream -> Async<unit> }
+    { initialCounter : unit -> Async<Counter>; uploadDatabase: Stream -> Async<unit>  }
