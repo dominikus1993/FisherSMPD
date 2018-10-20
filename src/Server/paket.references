@@ -4,3 +4,6 @@ group Server
     Microsoft.AspNetCore
     Microsoft.AspNetCore.StaticFiles
     Fable.Remoting.Giraffe
+    Hopac 
+    MathNet.Numerics
+    MathNet.Numerics.FSharp
