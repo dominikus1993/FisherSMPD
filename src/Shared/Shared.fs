@@ -1,5 +1,6 @@
 namespace Shared
 
+open System.IO
 type Counter = int
 
 module Route =
@@ -11,3 +12,6 @@ module Route =
 /// to learn more, read the docs at https://zaid-ajaj.github.io/Fable.Remoting/src/basics.html
 type ICounterApi =
     { initialCounter : unit -> Async<Counter> }
+
+type IFisherApi =
+    { uploadDatabase: Stream -> Async<unit> }
