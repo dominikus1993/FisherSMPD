@@ -25,3 +25,13 @@ let uploadDatabaseFile (stream: Stream) =
         let! state = read stream
         Agent.Post(Store(state))
     }
+
+let getFisherFactor dimension =
+    async {
+        let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
+        if dimension = 1 then
+            let keys = state.Features |> Map.toList |> List.map(fun (k, _) -> k)
+            2.
+        else
+            3.
+    }
