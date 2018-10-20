@@ -1,4 +1,3 @@
-
 module Database
 open System.Text.RegularExpressions
 open System.IO
@@ -42,5 +41,5 @@ let read (stream: Stream) =
                                                          | None ->
                                                              { acc with Features = acc.Features |> Map.add n [values]}
                                                     | _ -> acc) { FeaturesCount = 0; Features = [] |> Map.ofList }
-        return result                                                      
+        return result
     } |> Job.toAsync
