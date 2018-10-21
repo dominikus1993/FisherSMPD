@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Database.Tests.fs" />
+    <Compile Include="Fisher.Tests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
