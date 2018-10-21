@@ -4,10 +4,12 @@ open Types
 open Database
 open System.Numerics
 open MathNet.Numerics.LinearAlgebra
+open System
 
 type Msg =
     | Store of state: State
     | Get of AsyncReplyChannel<State>
+    | GetPossibleDimension of AsyncReplyChannel<int>
 
 let Agent =
     MailboxProcessor.Start(fun inbox ->
@@ -18,6 +20,14 @@ let Agent =
                     return! loop s
                 | Get reply ->
                     reply.Reply(state)
+                    return! loop state
+                | GetPossibleDimension reply ->
+                    match state.Features |> Map.toList |> List.map(fun (k, _) -> k) with
+                    | keys ->
+                        let sizes = keys |> List.map(fun key -> match state.Features.TryFind(key) with | Some k -> k |> List.length | None -> Int32.MaxValue)
+                        reply.Reply(sizes |> List.min)
+                    | _ ->
+                        reply.Reply(0)
                     return! loop state
              }
         loop { FeaturesCount = 0; Features = [] |> Map.ofList })
@@ -33,8 +43,8 @@ let uploadDatabaseFile (stream: Stream) =
 let getFisherFactor dimension =
     async {
         let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
+        let keys = state.Features |> Map.toList |> List.map(fun (k, _) -> k) |> List.take 2
         if dimension = 1 then
-            let keys = state.Features |> Map.toList |> List.map(fun (k, _) -> k) |> List.take 2
             match keys with
             | [first; second] ->
                 match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
@@ -49,5 +59,15 @@ let getFisherFactor dimension =
             | _ ->
                 return { index = []; value = 0.0 }
         else
-            return { index = []; value = 0.0 }
+            match keys with
+            | [first; second] ->
+                match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
+                | Some(f1), Some(f2) ->
+                    let size1, size2 = f1 |> List.length, f2 |> List.length
+                    let combiantions  = FisherMath.getPossibleCombinations dimension (if size1 > size2 then size1 else size2)
+                    return { index = []; value = 0.0 }
+                | _ ->
+                   return { index = []; value = 0.0 }
+            | _ ->
+                return { index = []; value = 0.0 }
     }
