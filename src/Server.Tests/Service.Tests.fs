@@ -13,8 +13,8 @@ let testFisher =
                 use file = File.OpenRead("./Maple_Oak.txt")
                 do! Service.uploadDatabaseFile file
                 let! subject = Service.getFisherFactor 1
-                Expect.equal subject.index 2 ""
-                Expect.equal subject.value 12. ""
+                Expect.equal subject.index [(46, 285)] ""
+                Expect.floatClose Accuracy.low subject.value 0.000006 ""
             }
         ]
 ]

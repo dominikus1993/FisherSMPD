@@ -22,7 +22,7 @@ let getPossibleCombinations m n =
     fC [] m [0..(n-1)]
 
 let F(matrixA: Vector<float>)(matrixB: Vector<float>)  =
-    (Statistics.Mean(matrixA) - Statistics.Mean(matrixB)) / (Statistics.StandardDeviation(matrixA) / Statistics.StandardDeviation(matrixB))
+    ((Statistics.Mean(matrixA) - Statistics.Mean(matrixB)) |> Math.Abs) / (Statistics.StandardDeviation(matrixA) + Statistics.StandardDeviation(matrixB))
 
 let getAverageVector(matrix: Matrix<float>) =
     matrix

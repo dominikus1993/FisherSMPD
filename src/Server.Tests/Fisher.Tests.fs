@@ -6,6 +6,14 @@ open FisherMath
 [<Tests>]
 let testFisher =
     testList "Fisher" [
+        testList "F" [
+            testCase "test1" <| fun _ ->
+                let subject = FisherMath.F (vector [0.0;1.0;1.0;2.0]) (vector [1.0; 1.0;1.0;1.0])
+                Expect.equal subject 0. ""
+            testCase "test2" <| fun _ ->
+                let subject = FisherMath.F (vector [0.;1.;1.;2.]) (vector [1.;2.;2.;2.])
+                Expect.floatClose Accuracy.low subject 0.569694 ""
+        ]
         testList "average vector" [
             testCase "Test1" <| fun _ ->
                 let m = matrix [[ 2.0; 3.0; 4.0 ]
