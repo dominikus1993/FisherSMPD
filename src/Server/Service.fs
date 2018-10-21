@@ -31,7 +31,7 @@ let getFisherFactor dimension =
         let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
         if dimension = 1 then
             let keys = state.Features |> Map.toList |> List.map(fun (k, _) -> k)
-            2.
+            3.
         else
             3.
     }

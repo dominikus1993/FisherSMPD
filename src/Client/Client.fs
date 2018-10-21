@@ -6,13 +6,13 @@ open Elmish.React
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
 open Fable.PowerPack.Fetch
-
+open Fable.Core.JsInterop
 open Thoth.Json
 
 open Shared
-
+open Fable.Core.DynamicExtensions
 open Fulma
-
+open System.IO
 
 // The model holds data that you want to keep track of while the application is running
 // in this case, we are keeping track of a counter
@@ -25,6 +25,7 @@ type Model = { Counter: Counter option }
 type Msg =
 | Increment
 | Decrement
+| FileUpload of File: File
 | InitialCountLoaded of Result<Counter, exn>
 
 
@@ -65,7 +66,9 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
     | _, InitialCountLoaded (Ok initialCount)->
         let nextModel = { Counter = Some initialCount }
         nextModel, Cmd.none
-
+    | _, FileUpload file ->
+        printfn "%A" file
+        currentModel, Cmd.none
     | _ -> currentModel, Cmd.none
 
 
@@ -112,8 +115,18 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ Heading.h3 [] [ str ("Press buttons to manipulate counter: " + show model) ] ]
                 Columns.columns []
                     [ Column.column [] [ button "-" (fun _ -> dispatch Decrement) ]
-                      Column.column [] [ button "+" (fun _ -> dispatch Increment) ] ] ]
-
+                      Column.column [] [ button "+" (fun _ -> dispatch Increment) ]
+                       ] ]
+          form [] [ Field.div [ ]
+                [ File.file [ File.HasName ]
+                    [ File.label [ ]
+                        [ File.input [ Props([ OnChange (fun x -> FileUpload(x.target?files.["0"] :?> File) |> dispatch ) ])]
+                          File.cta [ ]
+                            [ File.label [ ]
+                                [ str "Choose a file..." ] ]
+                          File.name [ ]
+                            [ str "License agreement.pdf" ] ] ] ]
+          ]
           Footer.footer [ ]
                 [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
                     [ safeComponents ] ] ]

@@ -7,9 +7,11 @@ group Server
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.StaticFiles
     nuget Fable.Remoting.Giraffe
-    nuget Hopac 
+    nuget Hopac
     nuget MathNet.Numerics
     nuget MathNet.Numerics.FSharp
+    nuget Expecto
+    nuget Expecto.TestResults
 
 group Client
     storage: none

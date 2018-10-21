@@ -1,0 +1,6 @@
+group Server
+    FSharp.Core
+    MathNet.Numerics
+    MathNet.Numerics.FSharp
+    Expecto
+    Expecto.TestResults
