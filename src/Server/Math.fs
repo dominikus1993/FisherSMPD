@@ -38,7 +38,7 @@ let getAverageVector(matrix: Matrix<float>) =
 
 let getCovarianceMatrix (matrix: Matrix<float>)(matrixAvg: Matrix<float>) =
     let diff = matrix - matrixAvg
-    diff * diff.Transpose()
+    (matrix.RowCount |> float) / (diff * diff.Transpose())
 
 let distance (u1: Vector<float>) (u2: Vector<float>) =
     let res = u1 |> Vector.fold2(fun acc y z -> Math.Pow(y - z, 2.0) + acc) (0.0) u2
