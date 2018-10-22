@@ -16,6 +16,8 @@ let testFisher =
                 Expect.isTrue (subject.Features |> Map.containsKey "Quercus") ""
                 Expect.equal ((subject.Features |> Map.tryFind "Acer").Value.Length) 176 ""
                 Expect.equal ((subject.Features |> Map.tryFind "Quercus").Value.Length) 608 ""
+                Expect.equal ((subject.Features |> Map.tryFind "Acer").Value |> Array.filter(fun x -> x.Length = 64) |> Array.length) 176 ""
+                Expect.equal ((subject.Features |> Map.tryFind "Quercus").Value |> Array.filter(fun x -> x.Length = 64) |> Array.length) 608 ""
             }
         ]
 ]

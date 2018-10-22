@@ -65,9 +65,8 @@ let getFisherFactor dimension =
                match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
                | Some(f1), Some(f2) ->
                    let size1, size2 = f1 |> Array.length, f2 |> Array.length
-                   let smallerSize = if size1 > size2 then size2 else size1
-                   let combiantions1  = FisherMath.getPossibleCombinations dimension smallerSize |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f1 i)) |> Seq.toList
-                   let combinations2 =  FisherMath.getPossibleCombinations dimension smallerSize |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f2 i)) |> Seq.toList
+                   let combiantions1  = FisherMath.getPossibleCombinations dimension size1 |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f1 i)) |> Seq.toList
+                   let combinations2 =  FisherMath.getPossibleCombinations dimension size2 |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f2 i)) |> Seq.toList
                    let (i, j, fisher) = combiantions1
                                            |> List.collect(fun (i, arr1) -> combinations2 |> List.map(fun (j, arr2) ->
                                                                                                (i, j, FisherMath.FMD (arr1) (arr2))

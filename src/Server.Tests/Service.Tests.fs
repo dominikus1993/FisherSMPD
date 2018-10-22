@@ -16,12 +16,12 @@ let testFisher =
                 Expect.equal subject.index [(46, 285)] ""
                 Expect.floatClose Accuracy.low subject.value 0.000006 ""
             }
-            testCaseAsync "Test for two dimension" <| async {
-                use file = File.OpenRead("./Maple_Oak.txt")
-                do! Service.uploadDatabaseFile file
-                let! subject = Service.getFisherFactor 2
-                Expect.equal subject.index [(46, 285)] ""
-                Expect.floatClose Accuracy.low subject.value 0.000006 ""
-           }
+        //     testCaseAsync "Test for two dimension" <| async {
+        //         use file = File.OpenRead("./Maple_Oak.txt")
+        //         do! Service.uploadDatabaseFile file
+        //         let! subject = Service.getFisherFactor 2
+        //         Expect.equal subject.index [(46, 285)] ""
+        //         Expect.floatClose Accuracy.low subject.value 0.000006 ""
+        //    }
         ]
 ]
