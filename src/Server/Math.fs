@@ -36,7 +36,7 @@ let getAverageVector(matrix: Matrix<float>) =
                     let mean = v |> Statistics.Mean
                     v |> Vector.map(fun _ -> mean))
 
-let getS (matrix: Matrix<float>)(matrixAvg: Matrix<float>) =
+let getCovarianceMatrix (matrix: Matrix<float>)(matrixAvg: Matrix<float>) =
     let diff = matrix - matrixAvg
     diff * diff.Transpose()
 
@@ -47,8 +47,8 @@ let distance (u1: Vector<float>) (u2: Vector<float>) =
 let FMD(matrixA: Matrix<float>)(matrixB: Matrix<float>) =
     let ua = matrixA |> getAverageVector
     let ub = matrixB |> getAverageVector
-    let sa = getS matrixA ua
-    let sb = getS matrixB ub
+    let sa = getCovarianceMatrix matrixA ua
+    let sb = getCovarianceMatrix matrixB ub
     let det = (sa - sb) |> Matrix.determinant
     let dist = ua.Row(0) |> distance (ub.Row(0))
     dist / det

@@ -6,6 +6,7 @@ open System.Numerics
 open MathNet.Numerics.LinearAlgebra
 open System
 open Hopac.Extensions
+open Hopac.Extensions
 
 type Msg =
     | Store of state: State
@@ -64,17 +65,12 @@ let getFisherFactor dimension =
            | [first; second] ->
                match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
                | Some(f1), Some(f2) ->
-                   let size1, size2 = f1 |> Array.length, f2 |> Array.length
-                   let combiantions1  = FisherMath.getPossibleCombinations dimension size1 |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f1 i)) |> Seq.toList
-                   let combinations2 =  FisherMath.getPossibleCombinations dimension size2 |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f2 i)) |> Seq.toList
-                   let (i, j, fisher) = combiantions1
-                                           |> List.collect(fun (i, arr1) -> combinations2 |> List.map(fun (j, arr2) ->
-                                                                                               (i, j, FisherMath.FMD (arr1) (arr2))
-                                                                                           ))
-                                           |> List.maxBy(fun (_, _, fisher) -> fisher)
-                   return { index = i |> List.zip j; value = fisher }
+                    let matrix1, matrix2 = matrix f1, matrix f2
+                    let mean1, mean2 = matrix1 |> FisherMath.getAverageVector, matrix2 |> FisherMath.getAverageVector
+                    let covariance1, covariance2 = FisherMath.getCovarianceMatrix matrix1 mean1, FisherMath.getCovarianceMatrix matrix2 mean2
+                    return { index = []; value = 0.0 }
                | _ ->
-                  return { index = []; value = 0.0 }
+                    return { index = []; value = 0.0 }
            | _ ->
                 return { index = []; value = 0.0 }
     }

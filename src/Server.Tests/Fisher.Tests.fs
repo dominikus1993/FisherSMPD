@@ -27,7 +27,7 @@ let testFisher =
                 let matrix = matrix [[ 0.0; 1.0; 1.0; 2.0]
                                      [ -3.0; -2.0; -2.0; -1.0 ]]
                 let avgMat = matrix |> FisherMath.getAverageVector
-                let subject = FisherMath.getS matrix avgMat |> Matrix.toRowArrays |> Array.toSeq
+                let subject = FisherMath.getCovarianceMatrix matrix avgMat |> Matrix.toRowArrays |> Array.toSeq
                 Expect.sequenceEqual subject ([|[|2.0; 2.0;|];[|2.0; 2.0;|]|]) ""
 
         ]
