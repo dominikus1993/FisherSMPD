@@ -3,12 +3,13 @@ open System.Text.RegularExpressions
 open System.IO
 open System.Linq
 open System
+open System.Globalization
 open Hopac
 open Types
 
 type LineType =
     | MetaData of numberOfFeatures: int
-    | FeatureData of name: string * features: int seq
+    | FeatureData of name: string * features: int array
     | Nothing
 
 let (|MetaData|FeatureData|Nothing|) input =
@@ -21,7 +22,7 @@ let (|MetaData|FeatureData|Nothing|) input =
             MetaData(Int32.Parse(firstLineMatch.Value))
         elif nextMatch.Count > 0 then
             let name = nextMatch.[0]
-            let rest = nextMatch.Cast<Match>() |> Seq.skip 1 |> Seq.map(fun x -> Double.Parse(x.Value)) |> Seq.toList
+            let rest = nextMatch.Cast<Match>() |> Seq.skip 1 |> Seq.map(fun x -> Double.Parse(x.Value, CultureInfo.InvariantCulture)) |> Seq.toArray
             FeatureData(name.Value.Split(' ').[0], rest)
         else
             Nothing
@@ -37,9 +38,9 @@ let read (stream: Stream) =
                                                     | FeatureData(n, values) ->
                                                          match acc.Features.TryFind(n) with
                                                          | Some(features) ->
-                                                             { acc with Features = acc.Features |> Map.add n (values::features)}
+                                                            { acc with Features = acc.Features |> Map.add n (Array.concat [[|values|]; features] )}
                                                          | None ->
-                                                             { acc with Features = acc.Features |> Map.add n [values]}
+                                                            { acc with Features = acc.Features |> Map.add n [|values|]}
                                                     | _ -> acc) { FeaturesCount = 0; Features = [] |> Map.ofList }
         return result
     } |> Job.toAsync

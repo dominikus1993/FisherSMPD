@@ -24,7 +24,7 @@ let Agent =
                 | GetPossibleDimension reply ->
                     match state.Features |> Map.toList |> List.map(fun (k, _) -> k) with
                     | keys ->
-                        let sizes = keys |> List.map(fun key -> match state.Features.TryFind(key) with | Some k -> k |> List.length | None -> Int32.MaxValue)
+                        let sizes = keys |> List.map(fun key -> match state.Features.TryFind(key) with | Some k -> k |> Array.length | None -> Int32.MaxValue)
                         reply.Reply(sizes |> List.min)
                     | _ ->
                         reply.Reply(0)
@@ -50,9 +50,9 @@ let getFisherFactor dimension =
                 match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
                 | Some(f1), Some(f2) ->
                     let (i, j, f) = f1
-                                    |> List.indexed
-                                    |> List.collect(fun (i, x) -> f2 |> List.indexed |> List.map(fun (j, y) -> (i, j, FisherMath.F (Vector<float>.Build.SparseOfArray(x |> List.toArray)) (Vector<float>.Build.SparseOfArray(y |> List.toArray)) )))
-                                    |> List.maxBy(fun (i, j, fisher) -> fisher)
+                                    |> Array.indexed
+                                    |> Array.collect(fun (i, x) -> f2 |> Array.indexed |> Array.map(fun (j, y) -> (i, j, FisherMath.F (vector x) (vector y) )))
+                                    |> Array.maxBy(fun (i, j, fisher) -> fisher)
                     return { index = [(i, j)] ; value = f }
                 | _ ->
                    return { index = []; value = 0.0 }
@@ -63,8 +63,8 @@ let getFisherFactor dimension =
             | [first; second] ->
                 match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
                 | Some(f1), Some(f2) ->
-                    let size1, size2 = f1 |> List.length, f2 |> List.length
-                    let combiantions  = FisherMath.getPossibleCombinations dimension (if size1 > size2 then size1 else size2)
+                    let size1, size2 = f1 |> Array.length, f2 |> Array.length
+                    let combiantions1, combinations2  = FisherMath.getPossibleCombinations dimension size1, FisherMath.getPossibleCombinations dimension size2
                     return { index = []; value = 0.0 }
                 | _ ->
                    return { index = []; value = 0.0 }
