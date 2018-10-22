@@ -5,6 +5,7 @@ open Database
 open System.Numerics
 open MathNet.Numerics.LinearAlgebra
 open System
+open Hopac.Extensions
 
 type Msg =
     | Store of state: State
@@ -45,29 +46,36 @@ let getFisherFactor dimension =
         let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
         let keys = state.Features |> Map.toList |> List.map(fun (k, _) -> k) |> List.take 2
         if dimension = 1 then
-            match keys with
-            | [first; second] ->
-                match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
-                | Some(f1), Some(f2) ->
-                    let (i, j, f) = f1
-                                    |> Array.indexed
-                                    |> Array.collect(fun (i, x) -> f2 |> Array.indexed |> Array.map(fun (j, y) -> (i, j, FisherMath.F (vector x) (vector y) )))
-                                    |> Array.maxBy(fun (i, j, fisher) -> fisher)
-                    return { index = [(i, j)] ; value = f }
-                | _ ->
-                   return { index = []; value = 0.0 }
-            | _ ->
+           match keys with
+           | [first; second] ->
+               match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
+               | Some(f1), Some(f2) ->
+                   let (i, j, f) = f1
+                                   |> Array.indexed
+                                   |> Array.collect(fun (i, x) -> f2 |> Array.indexed |> Array.map(fun (j, y) -> (i, j, FisherMath.F (vector x) (vector y) )))
+                                   |> Array.maxBy(fun (_, _, fisher) -> fisher)
+                   return { index = [(i, j)] ; value = f }
+               | _ ->
+                  return { index = []; value = 0.0 }
+           | _ ->
                 return { index = []; value = 0.0 }
         else
-            match keys with
-            | [first; second] ->
-                match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
-                | Some(f1), Some(f2) ->
-                    let size1, size2 = f1 |> Array.length, f2 |> Array.length
-                    let combiantions1, combinations2  = FisherMath.getPossibleCombinations dimension size1, FisherMath.getPossibleCombinations dimension size2
-                    return { index = []; value = 0.0 }
-                | _ ->
-                   return { index = []; value = 0.0 }
-            | _ ->
+           match keys with
+           | [first; second] ->
+               match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
+               | Some(f1), Some(f2) ->
+                   let size1, size2 = f1 |> Array.length, f2 |> Array.length
+                   let smallerSize = if size1 > size2 then size2 else size1
+                   let combiantions1  = FisherMath.getPossibleCombinations dimension smallerSize |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f1 i)) |> Seq.toList
+                   let combinations2 =  FisherMath.getPossibleCombinations dimension smallerSize |> Seq.map(fun i -> i, matrix (FisherMath.buildArrayFromListOfIndexes f2 i)) |> Seq.toList
+                   let (i, j, fisher) = combiantions1
+                                           |> List.collect(fun (i, arr1) -> combinations2 |> List.map(fun (j, arr2) ->
+                                                                                               (i, j, FisherMath.FMD (arr1) (arr2))
+                                                                                           ))
+                                           |> List.maxBy(fun (_, _, fisher) -> fisher)
+                   return { index = i |> List.zip j; value = fisher }
+               | _ ->
+                  return { index = []; value = 0.0 }
+           | _ ->
                 return { index = []; value = 0.0 }
     }

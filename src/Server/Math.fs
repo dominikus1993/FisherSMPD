@@ -21,6 +21,12 @@ let getPossibleCombinations m n =
     }
     fC [] m [0..(n-1)]
 
+let buildArrayFromListOfIndexes (matrix: _ array array) (indexes: int list) =
+    seq {
+        for x in indexes do
+            yield matrix.[x]
+    } |> Seq.toArray
+
 let F(matrixA: Vector<float>)(matrixB: Vector<float>)  =
     ((Statistics.Mean(matrixA) - Statistics.Mean(matrixB)) |> Math.Abs) / (Statistics.StandardDeviation(matrixA) + Statistics.StandardDeviation(matrixB))
 
