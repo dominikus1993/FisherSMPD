@@ -1,42 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<test-results date="2018-10-23" name="Expecto.Tests" total="8" errors="1" failures="1" ignored="0" not-run="0" inconclusive="0" skipped="0" invalid="0" time="11:34:09">
+<test-results date="2018-10-23" name="Expecto.Tests" total="8" errors="0" failures="2" ignored="0" not-run="0" inconclusive="0" skipped="0" invalid="0" time="15:38:34">
   <environment expecto-version="8.4.3" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 6.2.9200.0" platform="Linux" cwd="C:\Repositories\FisherSMPD\src\Server.Tests" machine-name="DIT385" user="Dominik.Kotecki" user-domain="ROSSPOL" />
   <culture-info current-culture="pl-PL" current-uiculture="pl-PL" />
-  <test-suite type="Assembly" name="Expecto.Tests" executed="True" result="Failure" success="False" time="0.996" asserts="0">
+  <test-suite type="Assembly" name="Expecto.Tests" executed="True" result="Failure" success="False" time="627.789" asserts="0">
     <results>
-      <test-case name="Probability/getPossibleCombinations/Test combinations" executed="True" result="Failure" success="False" time="0.072" asserts="0">
-        <failure>
-          <message>The type initializer for 'MathNet.Numerics.LinearAlgebra.Matrix`1' threw an exception.</message>
-          <stack-trace>System.TypeInitializationException: The type initializer for 'MathNet.Numerics.LinearAlgebra.Matrix`1' threw an exception. ---&gt; System.NotSupportedException: Matrices and vectors of type 'Int32' are not supported. Only Double, Single, Complex or Complex32 are supported at this point.
-   at MathNet.Numerics.LinearAlgebra.BuilderInstance`1.Create()
-   at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
-   at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
-   at System.Lazy`1.CreateValue()
-   at MathNet.Numerics.LinearAlgebra.BuilderInstance`1.get_Matrix()
-   at MathNet.Numerics.LinearAlgebra.Matrix`1..cctor()
-   --- End of inner exception stack trace ---
-   at FisherMath.getPossibleCombinations(Int32 m, Int32 n) in C:\Repositories\FisherSMPD\src\Server\Math.fs:line 13
-   at Fisher.Tests.testProb@40.Invoke(Unit _arg1) in C:\Repositories\FisherSMPD\src\Server.Tests\Fisher.Tests.fs:line 41
-   at Expecto.Impl.execTestAsync@918-1.Invoke(Unit unitVar) in C:\Users\Anthony Lloyd\src\expecto\Expecto\Expecto.fs:line 922
-   at Microsoft.FSharp.Control.AsyncPrimitives.CallThenInvoke[T,TResult](AsyncActivation`1 ctxt, TResult result1, FSharpFunc`2 part2)
-   at &lt;StartupCode$FSharp-Core&gt;.$Async.StartChild@1641-5.Invoke(AsyncActivation`1 ctxt)
-   at Microsoft.FSharp.Control.Trampoline.Execute(FSharpFunc`2 firstAction)</stack-trace>
-        </failure>
-      </test-case>
-      <test-case name="Service/getFisherFactor/Test for two dimension" executed="True" result="Failure" success="False" time="0.612" asserts="0">
+      <test-case name="Fisher/S/sa" executed="True" result="Failure" success="False" time="0.486" asserts="0">
         <failure>
           <message>
-. Actual value was [] but had expected it to be [(46, 285)].
+.
+        Expected value was:
+        [0] [|1.0; 1.0|]
+	[1] [|1.0; 1.0|]
+        Actual value (may be incomplete) was:
+        [0] [|2.0; 2.0|]
+	[1] [|2.0; 2.0|]
+        Sequence does not match at position 0. Expected item: [|1.0; 1.0|], but got [|2.0; 2.0|].
+  C:\Users\Anthony Lloyd\src\expecto\Expecto\Expect.fs(526,1): Expecto.Expect.sequenceEqual@526.Invoke(String x)
+</message>
+        </failure>
+      </test-case>
+      <test-case name="Service/getFisherFactor/Test for two dimension" executed="True" result="Failure" success="False" time="627.654" asserts="0">
+        <failure>
+          <message>
+. Actual value was [(19, 4); (57, 37)] but had expected it to be [(46, 285)].
   C:\Users\Anthony Lloyd\src\expecto\Expecto\Expect.fs(287,1): Expecto.Expect.equal@287-8.Invoke(String x)
 </message>
         </failure>
       </test-case>
-      <test-case name="Fisher/F/test2" executed="True" result="Success" success="True" time="0.035" asserts="0" />
-      <test-case name="Fisher/F/test1" executed="True" result="Success" success="True" time="0.035" asserts="0" />
-      <test-case name="Fisher/S/sa" executed="True" result="Success" success="True" time="0.079" asserts="0" />
-      <test-case name="Fisher/average vector/Test1" executed="True" result="Success" success="True" time="0.079" asserts="0" />
-      <test-case name="Database/load file/Test1" executed="True" result="Success" success="True" time="0.475" asserts="0" />
-      <test-case name="Service/getFisherFactor/Test for one dimension" executed="True" result="Success" success="True" time="0.936" asserts="0" />
+      <test-case name="Fisher/F/test2" executed="True" result="Success" success="True" time="0.150" asserts="0" />
+      <test-case name="Probability/getPossibleCombinations/Test combinations" executed="True" result="Success" success="True" time="0.208" asserts="0" />
+      <test-case name="Fisher/F/test1" executed="True" result="Success" success="True" time="0.150" asserts="0" />
+      <test-case name="Fisher/average vector/Test1" executed="True" result="Success" success="True" time="0.244" asserts="0" />
+      <test-case name="Database/load file/Test1" executed="True" result="Success" success="True" time="4.822" asserts="0" />
+      <test-case name="Service/getFisherFactor/Test for one dimension" executed="True" result="Success" success="True" time="23.449" asserts="0" />
     </results>
   </test-suite>
 </test-results>

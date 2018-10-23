@@ -21,11 +21,12 @@ let getPossibleCombinations m n =
     }
     fC [] m [0..(n-1)]
 
-let buildArrayFromListOfIndexes (matrix: _ array array) (indexes: int list) =
-    seq {
-        for x in indexes do
-            yield matrix.[x]
-    } |> Seq.toArray
+let buildArrayFromListOfIndexes (m: Matrix<_>) (indexes: int list) =
+    let res = seq {
+                    for x in indexes do
+                    yield m.Row(x).ToArray()
+                } |> Seq.toArray
+    matrix res
 
 let F(matrixA: Vector<float>)(matrixB: Vector<float>)  =
     ((Statistics.Mean(matrixA) - Statistics.Mean(matrixB)) |> Math.Abs) / (Statistics.StandardDeviation(matrixA) + Statistics.StandardDeviation(matrixB))
@@ -44,11 +45,9 @@ let distance (u1: Vector<float>) (u2: Vector<float>) =
     let res = u1 |> Vector.fold2(fun acc y z -> Math.Pow(y - z, 2.0) + acc) (0.0) u2
     Math.Sqrt(res)
 
-let FMD(matrixA: Matrix<float>)(matrixB: Matrix<float>) =
-    let ua = matrixA |> getAverageVector
-    let ub = matrixB |> getAverageVector
+let FMD(matrixA: Matrix<float>)(ua: Matrix<float>)(matrixB: Matrix<float>)(ub: Matrix<float>) =
     let sa = getCovarianceMatrix matrixA ua
     let sb = getCovarianceMatrix matrixB ub
     let det = (sa - sb) |> Matrix.determinant
-    let dist = ua.Row(0) |> distance (ub.Row(0))
+    let dist = ua.Column(0) |> distance (ub.Column(0))
     dist / det

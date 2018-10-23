@@ -68,9 +68,11 @@ let getFisherFactor dimension =
                | Some(f1), Some(f2) ->
                     let matrix1, matrix2 = matrix f1 |> Matrix.transpose, matrix f2 |> Matrix.transpose
                     let mean1, mean2 = matrix1 |> FisherMath.getAverageVector, matrix2 |> FisherMath.getAverageVector
-                    let covariance1, covariance2 = FisherMath.getCovarianceMatrix matrix1 mean1, FisherMath.getCovarianceMatrix matrix2 mean2
-                    let combinations = getPossibleCombinations dimension 64
-                    return { index = []; value = 0.0 }
+                    let combinations = getPossibleCombinations dimension 64 |> Seq.toList
+                    let matrixCombinations1 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x) |> Seq.toList
+                    let matrixCombinations2 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x) |> Seq.toList
+                    let struct (i, j, f) = matrixCombinations1 |> List.collect(fun (c1, ma1, m1) -> matrixCombinations2 |> List.map(fun (c2, ma2, m2) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2))) |> List.maxBy(fun struct (_, _, f) -> f)
+                    return { index = List.zip i j |> List.map(fun (x, y) -> x, y); value = f }
                | _ ->
                     return { index = []; value = 0.0 }
            | _ ->
