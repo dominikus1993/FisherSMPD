@@ -1,9 +1,10 @@
 group Server
     FSharp.Core
+    Combinatorics
     Giraffe
     Microsoft.AspNetCore
     Microsoft.AspNetCore.StaticFiles
     Fable.Remoting.Giraffe
-    Hopac 
+    Hopac
     MathNet.Numerics
     MathNet.Numerics.FSharp

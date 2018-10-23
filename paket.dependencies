@@ -12,6 +12,7 @@ group Server
     nuget MathNet.Numerics.FSharp
     nuget Expecto
     nuget Expecto.TestResults
+    nuget Combinatorics
 
 group Client
     storage: none
