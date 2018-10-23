@@ -70,7 +70,6 @@ let getFisherFactor dimension =
                     let mean1, mean2 = matrix1 |> FisherMath.getAverageVector, matrix2 |> FisherMath.getAverageVector
                     let covariance1, covariance2 = FisherMath.getCovarianceMatrix matrix1 mean1, FisherMath.getCovarianceMatrix matrix2 mean2
                     let combinations = getPossibleCombinations dimension 64
-
                     return { index = []; value = 0.0 }
                | _ ->
                     return { index = []; value = 0.0 }
