@@ -25,12 +25,7 @@ let Agent =
                     reply.Reply(state)
                     return! loop state
                 | GetPossibleDimension reply ->
-                    match state.Features |> Map.toList |> List.map(fun (k, _) -> k) with
-                    | keys ->
-                        let sizes = keys |> List.map(fun key -> match state.Features.TryFind(key) with | Some k -> k |> Array.length | None -> Int32.MaxValue)
-                        reply.Reply(sizes |> List.min)
-                    | _ ->
-                        reply.Reply(0)
+                    reply.Reply(state.FeaturesCount)
                     return! loop state
              }
         loop { FeaturesCount = 0; Features = [] |> Map.ofList })
@@ -47,6 +42,7 @@ let getFisherFactor dimension =
     async {
         let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
         let keys = state.Features |> Map.toList |> List.map(fun (k, _) -> k) |> List.take 2
+        let! possibleDimensions = Agent.PostAndAsyncReply(fun ch -> GetPossibleDimension(ch))
         if dimension = 1 then
            match keys with
            | [first; second] ->
@@ -68,7 +64,7 @@ let getFisherFactor dimension =
                | Some(f1), Some(f2) ->
                     let matrix1, matrix2 = matrix f1 |> Matrix.transpose, matrix f2 |> Matrix.transpose
                     let mean1, mean2 = matrix1 |> FisherMath.getAverageVector, matrix2 |> FisherMath.getAverageVector
-                    let combinations = getPossibleCombinations dimension 64 |> Seq.toList
+                    let combinations = getPossibleCombinations dimension possibleDimensions |> Seq.toList
                     let matrixCombinations1 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x) |> Seq.toList
                     let matrixCombinations2 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x) |> Seq.toList
                     let struct (i, j, f) = matrixCombinations1 |> List.collect(fun (c1, ma1, m1) -> matrixCombinations2 |> List.map(fun (c2, ma2, m2) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2))) |> List.maxBy(fun struct (_, _, f) -> f)
