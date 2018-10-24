@@ -1317,6 +1317,12 @@ NUGET
     Microsoft.AspNetCore.Connections.Abstractions (2.1.3) - restriction: >= netstandard2.0
       Microsoft.AspNetCore.Http.Features (>= 2.1.1) - restriction: >= netstandard2.0
       System.IO.Pipelines (>= 4.5) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Cors (2.1.1)
+      Microsoft.AspNetCore.Http.Extensions (>= 2.1.1) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration.Abstractions (>= 2.1.1) - restriction: >= netstandard2.0
+      Microsoft.Extensions.DependencyInjection.Abstractions (>= 2.1.1) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging.Abstractions (>= 2.1.1) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options (>= 2.1.1) - restriction: >= netstandard2.0
     Microsoft.AspNetCore.Cryptography.Internal (2.1.1) - restriction: >= netstandard2.0
     Microsoft.AspNetCore.DataProtection (2.1.1) - restriction: >= netstandard2.0
       Microsoft.AspNetCore.Cryptography.Internal (>= 2.1.1) - restriction: >= netstandard2.0

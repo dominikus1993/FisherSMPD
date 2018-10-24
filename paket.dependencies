@@ -13,6 +13,7 @@ group Server
     nuget Expecto
     nuget Expecto.TestResults
     nuget Combinatorics
+    nuget Microsoft.AspNetCore.Cors
 
 group Client
     storage: none

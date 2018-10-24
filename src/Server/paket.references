@@ -4,6 +4,7 @@ group Server
     Giraffe
     Microsoft.AspNetCore
     Microsoft.AspNetCore.StaticFiles
+    Microsoft.AspNetCore.Cors
     Fable.Remoting.Giraffe
     Hopac
     MathNet.Numerics
