@@ -7,6 +7,8 @@ open System.Numerics
 open MathNet.Numerics.LinearAlgebra
 open System
 open Hopac.Extensions
+open Hopac
+open System.Linq
 open Hopac.Extensions
 
 type Msg =
@@ -67,7 +69,8 @@ let getFisherFactor dimension =
                     let combinations = getPossibleCombinations dimension possibleDimensions |> Seq.toList
                     let matrixCombinations1 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x) |> Seq.toList
                     let matrixCombinations2 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x) |> Seq.toList
-                    let struct (i, j, f) = matrixCombinations1 |> List.collect(fun (c1, ma1, m1) -> matrixCombinations2 |> List.map(fun (c2, ma2, m2) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2))) |> List.maxBy(fun struct (_, _, f) -> f)
+                    let! result = matrixCombinations1 |> List.map(fun (c1, ma1, m1) -> job { return matrixCombinations2 |> List.map(fun (c2, ma2, m2) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f) }) |> Job.conCollect |> Job.toAsync
+                    let struct (i, j, f) = result.OrderByDescending(fun struct (_,_, f) -> f).First()
                     return { index = List.zip i j |> List.map(fun (x, y) -> x, y); value = f }
                | _ ->
                     return { index = []; value = 0.0 }
