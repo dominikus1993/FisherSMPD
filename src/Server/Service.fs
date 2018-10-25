@@ -44,35 +44,29 @@ let getFisherFactor dimension =
         let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
         let keys = state.Features |> Map.toList |> List.map(fun (k, _) -> k) |> List.take 2
         let! possibleDimensions = Agent.PostAndAsyncReply(fun ch -> GetPossibleDimension(ch))
-        if dimension = 1 then
-           match keys with
-           | [first; second] ->
-               match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
-               | Some(f1), Some(f2) ->
-                   let (i, j, f) = f1
-                                   |> Array.indexed
-                                   |> Array.collect(fun (i, x) -> f2 |> Array.indexed |> Array.map(fun (j, y) -> (i, j, FisherMath.F (vector x) (vector y) )))
-                                   |> Array.maxBy(fun (_, _, fisher) -> fisher)
-                   return { index = [(i, j)] ; value = f }
-               | _ ->
-                  return { index = []; value = 0.0 }
-           | _ ->
-                return { index = []; value = 0.0 }
-        else
-           match keys with
+        match keys with
            | [first; second] ->
                match state.Features |> Map.tryFind(first), state.Features |> Map.tryFind(second) with
                | Some(f1), Some(f2) ->
                     let matrix1, matrix2 = matrix f1 |> Matrix.transpose, matrix f2 |> Matrix.transpose
-                    let mean1, mean2 = matrix1 |> FisherMath.getAverageVector, matrix2 |> FisherMath.getAverageVector
-                    let combinations = getPossibleCombinations dimension possibleDimensions |> Seq.toList
-                    let matrixCombinations1 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x) |> Seq.toList
-                    let matrixCombinations2 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x) |> Seq.toList
-                    let! result = matrixCombinations1 |> List.map(fun (c1, ma1, m1) -> job { return matrixCombinations2 |> List.map(fun (c2, ma2, m2) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f) }) |> Job.conCollect |> Job.toAsync
-                    let struct (i, j, f) = result.OrderByDescending(fun struct (_,_, f) -> f).First()
-                    return { index = List.zip i j |> List.map(fun (x, y) -> x, y); value = f }
+                    if dimension = 1 then
+                        let (i, j, f) =
+                            seq {
+                                for (i, m1) in matrix1.ToRowArrays() |> Array.indexed do
+                                    for (j, m2) in matrix2.ToRowArrays() |> Array.indexed do
+                                        yield (i, j, FisherMath.F (vector m1) (vector m2) )
+                            } |> Seq.maxBy(fun (_, _, fisher) -> fisher)
+                        return { index = [(i, j)] ; value = f }
+                    else
+                        let mean1, mean2 = matrix1 |> FisherMath.getAverageVector, matrix2 |> FisherMath.getAverageVector
+                        let combinations = getPossibleCombinations dimension possibleDimensions |> Seq.toList
+                        let matrixCombinations1 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x) |> Seq.toList
+                        let matrixCombinations2 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x) |> Seq.toList
+                        let! result = matrixCombinations1 |> List.map(fun (c1, ma1, m1) -> job { return matrixCombinations2 |> List.map(fun (c2, ma2, m2) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f) }) |> Job.conCollect |> Job.toAsync
+                        let struct (i, j, f) = result.OrderByDescending(fun struct (_,_, f) -> f).First()
+                        return { index = List.zip i j |> List.map(fun (x, y) -> x, y); value = f }
                | _ ->
-                    return { index = []; value = 0.0 }
+                  return { index = []; value = 0.0 }
            | _ ->
                 return { index = []; value = 0.0 }
     }

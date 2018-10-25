@@ -95,6 +95,9 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
         {currentModel with IsLoading = true }, getFisherFactorCmd(dimension)
     | _, GetFisherFactorSuccess resp ->
         {currentModel with Result = Some(resp); IsLoading = false }, Cmd.none
+    | _, Error e ->
+        printf "%A" e
+        currentModel, Cmd.none
     | _ -> currentModel, Cmd.none
 
 
@@ -121,6 +124,12 @@ let safeComponents =
 let show = function
 | { Counter = Some x } -> string x
 | { Counter = None   } -> "Loading..."
+
+
+let showResult = function
+| { Result = Some x } -> sprintf "Wynik to %A dla indeksów %A" x.value x.index
+| { Result = None   } -> ""
+
 
 let button txt onClick =
     Button.button
@@ -152,6 +161,15 @@ let view (model : Model) (dispatch : Msg -> unit) =
                                 [ str "Choose a file..." ] ]
                           Fulma.File.name [ ]
                             [ str model.FileName ] ] ] ]
+          ]
+          Field.div [ ] [
+                if model.IsLoading then
+                    yield button "Obliczam" (fun _ -> ())
+                else
+                    yield button "Oblicz" (fun _ -> dispatch GetFisherFactor)
+          ]
+          Field.div [ ] [
+                h1 [] [ str (showResult model) ]
           ]
           Footer.footer [ ]
                 [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Fulma.Screen.All, TextAlignment.Centered) ] ]
