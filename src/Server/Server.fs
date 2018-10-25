@@ -20,11 +20,9 @@ open Service
 let publicPath = Path.GetFullPath "../Client/public"
 let port = 8085us
 
-let getInitCounter () : Task<Counter> = task { return 42 }
-let uploadDatabaseF s = async { return () }
+let getFisherForDimension (dimension: int) : Async<FisherResponse> = Service.getFisherFactor(dimension)
 let counterApi = {
-    initialCounter = getInitCounter >> Async.AwaitTask
-    uploadDatabase = uploadDatabaseF
+    getFisherForDimension = getFisherForDimension
 }
 
 let remoting =

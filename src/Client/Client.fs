@@ -21,7 +21,7 @@ open System.Net.Http
 // in this case, we are keeping track of a counter
 // we mark it as optional, because initially it will not be available from the client
 // the initial value will be requested from server
-type Model = { Counter: Counter option; FileName: string }
+type Model = { Counter: Counter option; FileName: string; Result: FisherResponse option; IsLoading: bool }
 
 // The Msg type defines what events/actions can occur while the application is running
 // the state of the application changes *only* in reaction to these events
@@ -30,8 +30,10 @@ type Msg =
 | Decrement
 | FileUpload of File: File
 | FileUploadSuccess of string
-| FileUploadError of exn
+| GetFisherFactor
+| GetFisherFactorSuccess of FisherResponse
 | InitialCountLoaded of Result<Counter, exn>
+| Error of exn
 
 
 module Server =
@@ -40,10 +42,10 @@ module Server =
     open Fable.Remoting.Client
 
     /// A proxy you can use to talk to server directly
-    let api : ICounterApi =
+    let api : IFisherApi =
       Remoting.createApi()
       |> Remoting.withRouteBuilder Route.builder
-      |> Remoting.buildProxy<ICounterApi>
+      |> Remoting.buildProxy<IFisherApi>
 
 
 let sendFile (formData: FormData) =
@@ -57,19 +59,17 @@ let sendFile (formData: FormData) =
         else
             return failwith "file upload error"
     }
-
-let sendFileCmd (query : FormData) = Cmd.ofPromise sendFile query FileUploadSuccess FileUploadError
-
+let getFisherFactor (dimension) =
+    async {
+        let! result = Server.api.getFisherForDimension(dimension)
+        return result
+    }
+let sendFileCmd (query : FormData) = Cmd.ofPromise sendFile query FileUploadSuccess Error
+let getFisherFactorCmd(dimension: int) = Cmd.ofAsync getFisherFactor dimension GetFisherFactorSuccess Error
 // defines the initial state and initial command (= side-effect) of the application
 let init () : Model * Cmd<Msg> =
-    let initialModel = { Counter = None; FileName = "" }
-    let loadCountCmd =
-        Cmd.ofAsync
-            Server.api.initialCounter
-            ()
-            (Ok >> InitialCountLoaded)
-            (Error >> InitialCountLoaded)
-    initialModel, loadCountCmd
+    let initialModel = { Counter = Some(1); FileName = ""; Result = None; IsLoading = false }
+    initialModel, Cmd.none
 
 // The update function computes the next state of the application based on the current state and the incoming events/messages
 // It can also run side-effects (encoded as commands) like calling the server via Http.
@@ -77,13 +77,13 @@ let init () : Model * Cmd<Msg> =
 let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
     match currentModel.Counter, msg with
     | Some x, Increment ->
-        let nextModel = { currentModel with Counter = Some (x + 1) }
+        let nextModel = { currentModel with Counter = if x = 64 then Some(64) else Some (x + 1) }
         nextModel, Cmd.none
     | Some x, Decrement ->
-        let nextModel = { currentModel with Counter = Some (x - 1) }
+        let nextModel = { currentModel with Counter = if x = 1 then Some(1) else Some (x - 1) }
         nextModel, Cmd.none
     | _, InitialCountLoaded (Ok initialCount)->
-        let nextModel = { Counter = Some initialCount; FileName = "" }
+        let nextModel = { Counter = Some initialCount; FileName = ""; Result = None; IsLoading = false }
         nextModel, Cmd.none
     | _, FileUpload file ->
         let formData = FormData.Create()
@@ -91,6 +91,10 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
         currentModel, sendFileCmd(formData)
     | _, FileUploadSuccess filename ->
         {currentModel with FileName = filename }, Cmd.none
+    | Some(dimension), GetFisherFactor ->
+        {currentModel with IsLoading = true }, getFisherFactorCmd(dimension)
+    | _, GetFisherFactorSuccess resp ->
+        {currentModel with Result = Some(resp); IsLoading = false }, Cmd.none
     | _ -> currentModel, Cmd.none
 
 
@@ -134,7 +138,7 @@ let view (model : Model) (dispatch : Msg -> unit) =
 
           Container.container []
               [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Fulma.Screen.All, TextAlignment.Centered) ] ]
-                    [ Heading.h3 [] [ str ("Press buttons to manipulate counter: " + show model) ] ]
+                    [ Heading.h3 [] [ str ("Wybierz ilosc cech: " + show model) ] ]
                 Columns.columns []
                     [ Column.column [] [ button "-" (fun _ -> dispatch Decrement) ]
                       Column.column [] [ button "+" (fun _ -> dispatch Increment) ]
