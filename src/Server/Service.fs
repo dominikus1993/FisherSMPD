@@ -10,6 +10,7 @@ open Hopac.Extensions
 open Hopac
 open System.Linq
 open Hopac.Extensions
+open Shared
 
 type Msg =
     | Store of state: State
@@ -31,8 +32,6 @@ let Agent =
                     return! loop state
              }
         loop { FeaturesCount = 0; Features = [] |> Map.ofList })
-
-type FisherResponse = { index: (int * int) list; value: float }
 
 let uploadDatabaseFile (stream: Stream) =
     async {
