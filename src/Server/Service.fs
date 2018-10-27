@@ -52,9 +52,8 @@ let getFisherFactor dimension =
                     if dimension = 1 then
                         let (i, j, f) =
                             seq {
-                                for (i, m1) in matrix1.ToRowArrays() |> Array.indexed do
-                                    for (j, m2) in matrix2.ToRowArrays() |> Array.indexed do
-                                        yield (i, j, FisherMath.F (vector m1) (vector m2) )
+                                for ((i, m1), (j, m2)) in matrix1.ToRowArrays() |> Array.indexed |> Array.zip(matrix2.ToRowArrays() |> Array.indexed) do
+                                    yield (i, j, FisherMath.F (vector m1) (vector m2) )
                             } |> Seq.maxBy(fun (_, _, fisher) -> fisher)
                         return { index = [(i, j)] ; value = f }
                     else
@@ -62,8 +61,7 @@ let getFisherFactor dimension =
                         let combinations = getPossibleCombinations dimension possibleDimensions |> Seq.toList
                         let matrixCombinations1 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x) |> Seq.toList
                         let matrixCombinations2 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x) |> Seq.toList
-                        let! result = matrixCombinations1 |> List.map(fun (c1, ma1, m1) -> job { return matrixCombinations2 |> List.map(fun (c2, ma2, m2) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f) }) |> Job.conCollect |> Job.toAsync
-                        let struct (i, j, f) = result.OrderByDescending(fun struct (_,_, f) -> f).First()
+                        let struct (i, j, f) = matrixCombinations1 |> List.zip(matrixCombinations2) |> List.map(fun ((c1, ma1, m1), (c2, ma2, m2)) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f)
                         return { index = List.zip i j |> List.map(fun (x, y) -> x, y); value = f }
                | _ ->
                   return { index = []; value = 0.0 }

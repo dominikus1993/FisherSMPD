@@ -48,6 +48,6 @@ let distance (u1: Vector<float>) (u2: Vector<float>) =
 let FMD(matrixA: Matrix<float>)(ua: Matrix<float>)(matrixB: Matrix<float>)(ub: Matrix<float>) =
     let sa = getCovarianceMatrix matrixA ua
     let sb = getCovarianceMatrix matrixB ub
-    let det = (sa - sb) |> Matrix.determinant
+    let det = (sa + sb) |> Matrix.determinant
     let dist = ua.Column(0) |> distance (ub.Column(0))
     dist / det
