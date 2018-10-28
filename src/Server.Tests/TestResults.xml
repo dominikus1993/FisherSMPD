@@ -1,37 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<test-results date="2018-10-25" name="Expecto.Tests" total="7" errors="0" failures="2" ignored="0" not-run="0" inconclusive="0" skipped="0" invalid="0" time="19:29:52">
+<test-results date="2018-10-28" name="Expecto.Tests" total="8" errors="0" failures="0" ignored="0" not-run="0" inconclusive="0" skipped="0" invalid="0" time="12:04:29">
   <environment expecto-version="8.4.3" clr-version="4.0.30319.42000" os-version="Unix 4.15.0.38" platform="Linux" cwd="/home/dominik/Projects/FisherSMPD/src/Server.Tests" machine-name="dominik-Aspire-VN7-592G" user="dominik" user-domain="dominik-Aspire-VN7-592G" />
-  <culture-info current-culture="pl-PL" current-uiculture="pl-PL" />
-  <test-suite type="Assembly" name="Expecto.Tests" executed="True" result="Failure" success="False" time="0.484" asserts="0">
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="Assembly" name="Expecto.Tests" executed="True" result="Success" success="True" time="0.570" asserts="0">
     <results>
-      <test-case name="Fisher/S/sa" executed="True" result="Failure" success="False" time="0.147" asserts="0">
-        <failure>
-          <message>
-.
-        Expected value was:
-        [0] [|1.0; 1.0|]
-	[1] [|1.0; 1.0|]
-        Actual value (may be incomplete) was:
-        [0] [|2.0; 2.0|]
-	[1] [|2.0; 2.0|]
-        Sequence does not match at position 0. Expected item: [|1.0; 1.0|], but got [|2.0; 2.0|].
-  C:\Users\Anthony Lloyd\src\expecto\Expecto\Expect.fs(526,1): Expecto.Expect.sequenceEqual@526.Invoke(String x)
-</message>
-        </failure>
-      </test-case>
-      <test-case name="Service/getFisherFactor/Test for one dimension" executed="True" result="Failure" success="False" time="0.431" asserts="0">
-        <failure>
-          <message>
-. Actual value was [(15, 25)] but had expected it to be [(46, 285)].
-  C:\Users\Anthony Lloyd\src\expecto\Expecto\Expect.fs(287,1): Expecto.Expect.equal@287-8.Invoke(String x)
-</message>
-        </failure>
-      </test-case>
-      <test-case name="Probability/getPossibleCombinations/Test combinations" executed="True" result="Success" success="True" time="0.024" asserts="0" />
-      <test-case name="Fisher/average vector/Test1" executed="True" result="Success" success="True" time="0.049" asserts="0" />
-      <test-case name="Fisher/F/test2" executed="True" result="Success" success="True" time="0.023" asserts="0" />
-      <test-case name="Fisher/F/test1" executed="True" result="Success" success="True" time="0.023" asserts="0" />
-      <test-case name="Database/load file/Test1" executed="True" result="Success" success="True" time="0.296" asserts="0" />
+      <test-case name="Probability/getPossibleCombinations/Test combinations" executed="True" result="Success" success="True" time="0.027" asserts="0" />
+      <test-case name="Fisher/F/test2" executed="True" result="Success" success="True" time="0.020" asserts="0" />
+      <test-case name="Fisher/F/test1" executed="True" result="Success" success="True" time="0.020" asserts="0" />
+      <test-case name="Fisher/average vector/Test1" executed="True" result="Success" success="True" time="0.053" asserts="0" />
+      <test-case name="Fisher/S/sa" executed="True" result="Success" success="True" time="0.077" asserts="0" />
+      <test-case name="Database/load file/Test1" executed="True" result="Success" success="True" time="0.299" asserts="0" />
+      <test-case name="Service/getFisherFactor/Test for one dimension" executed="True" result="Success" success="True" time="0.334" asserts="0" />
+      <test-case name="Service/getFisherFactor/Test for two dimension" executed="True" result="Success" success="True" time="0.522" asserts="0" />
     </results>
   </test-suite>
 </test-results>

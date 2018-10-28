@@ -59,9 +59,9 @@ let getFisherFactor dimension =
                     else
                         let mean1, mean2 = matrix1 |> FisherMath.getAverageVector, matrix2 |> FisherMath.getAverageVector
                         let combinations = getPossibleCombinations dimension possibleDimensions |> Seq.toList
-                        let matrixCombinations1 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x) |> Seq.toList
-                        let matrixCombinations2 = combinations |> List.map(fun x -> x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x) |> Seq.toList
-                        let struct (i, j, f) = matrixCombinations1 |> List.zip(matrixCombinations2) |> List.map(fun ((c1, ma1, m1), (c2, ma2, m2)) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f)
+                        let matrixCombinations1 = combinations |> List.map(fun x -> struct (x, buildArrayFromListOfIndexes matrix1 x, buildArrayFromListOfIndexes mean1 x)) |> Seq.toList
+                        let matrixCombinations2 = combinations |> List.map(fun x -> struct (x, buildArrayFromListOfIndexes matrix2 x, buildArrayFromListOfIndexes mean2 x)) |> Seq.toList
+                        let struct (i, j, f) = matrixCombinations1 |> List.zip(matrixCombinations2) |> List.map(fun (struct (c1, ma1, m1), struct (c2, ma2, m2)) -> struct (c1, c2, FisherMath.FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f)
                         return { index = List.zip i j |> List.map(fun (x, y) -> x, y); value = f }
                | _ ->
                   return { index = []; value = 0.0 }

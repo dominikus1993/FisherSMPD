@@ -13,15 +13,15 @@ let testFisher =
                 use file = File.OpenRead("./Maple_Oak.txt")
                 do! Service.uploadDatabaseFile file
                 let! subject = Service.getFisherFactor 1
-                Expect.equal subject.index [(46, 285)] ""
-                Expect.floatClose Accuracy.low subject.value 0.000006 ""
+                Expect.equal subject.index [(30, 30)] ""
+                Expect.floatClose Accuracy.low subject.value 0.741833 ""
             }
-        //     testCaseAsync "Test for two dimension" <| async {
-        //         use file = File.OpenRead("./Maple_Oak.txt")
-        //         do! Service.uploadDatabaseFile file
-        //         let! subject = Service.getFisherFactor 2
-        //         Expect.equal subject.index [(46, 285)] ""
-        //         Expect.floatClose Accuracy.low subject.value 0.000006 ""
-        //    }
+            testCaseAsync "Test for two dimension" <| async {
+                use file = File.OpenRead("./Maple_Oak.txt")
+                do! Service.uploadDatabaseFile file
+                let! subject = Service.getFisherFactor 2
+                Expect.equal subject.index [(15, 15); (33, 33)] ""
+                Expect.floatClose Accuracy.low subject.value 67458992.995955 ""
+           }
         ]
 ]
