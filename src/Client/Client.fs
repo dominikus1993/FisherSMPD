@@ -61,7 +61,7 @@ let sendFile (formData: FormData) =
     }
 let getFisherFactor (dimension) =
     async {
-        let! result = Server.api.getFisherForDimension(dimension)
+        let! result = Server.api.getFisherForDimension(dimension) Sfs
         return result
     }
 let sendFileCmd (query : FormData) = Cmd.ofPromise sendFile query FileUploadSuccess Error

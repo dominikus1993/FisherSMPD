@@ -35,7 +35,7 @@ let testFisher =
                 do! Service.uploadDatabaseFile file
                 let! subject = Service.getFisherFactor 2 Sfs
                 Expect.equal subject.index [(15); (30)] ""
-                Expect.floatClose Accuracy.low subject.value 30043623.226422 ""
+                Expect.floatClose Accuracy.low subject.value 37415369.769533  ""
            }
         ]
     ]
