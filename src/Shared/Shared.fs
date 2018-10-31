@@ -5,6 +5,10 @@ type Counter = int
 
 type FisherResponse = { index: (int * int) list; value: float }
 
+type FeatureExtract =
+    | Fisher
+    | Sfs
+
 module Route =
     /// Defines how routes are generated on server and mapped from client
     let builder typeName methodName =

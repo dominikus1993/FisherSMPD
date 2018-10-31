@@ -51,3 +51,18 @@ let FMD(matrixA: Matrix<float>)(ua: Matrix<float>)(matrixB: Matrix<float>)(ub: M
     let det = (sa + sb) |> Matrix.determinant
     let dist = ua.Column(0) |> distance (ub.Column(0))
     dist / det
+
+let sfsCombinations d featureCount index =
+    getPossibleCombinations d featureCount |> Seq.filter(fun x -> x |> List.contains(index)) |> Seq.toList
+let sfs (matrixA: Matrix<float>)(matrixB: Matrix<float>)(dimension: int)(featureCount: int) =
+    let mean1, mean2 = matrixA |> getAverageVector, matrixB |> getAverageVector
+    let rec f (m1)(m2) d index =
+        if d = 1 then
+            let (_, index) = matrixA.ToRowArrays() |> Array.zip (matrixB.ToRowArrays() |> Array.indexed) |> Array.map(fun ((index, x1), x2) -> F (vector x1)(vector x2), index) |> Array.maxBy(fun (f, _) -> f)
+            f m1 m2 (d + 1) index
+        elif d > 1 && d <= dimension then
+            let combinations = getPossibleCombinations d featureCount |> Seq.filter(fun x -> x |> List.contains(index)) |> Seq.toList
+            2
+        else
+            2
+    4

@@ -31,6 +31,14 @@ let testFisher =
                 Expect.sequenceEqual subject ([|[|0.5; 0.5;|];[|0.5; 0.5;|]|]) ""
 
         ]
+        testList "sfs" [
+            testList "combinations" [
+                test "get possible combinations 2 dim of 64" {
+                    let subject = FisherMath.sfsCombinations 2 4 1
+                    Expect.sequenceEqual subject [[0;1]; [1;2]; [1;3];] ""
+                }
+            ]
+        ]
     ]
 
 [<Tests>]
