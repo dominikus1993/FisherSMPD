@@ -21,7 +21,7 @@ open System.Net.Http
 // in this case, we are keeping track of a counter
 // we mark it as optional, because initially it will not be available from the client
 // the initial value will be requested from server
-type Model = { Counter: Counter option; FileName: string; Result: FisherResponse option; IsLoading: bool }
+type Model = { Counter: Counter option; Mode: FeatureExtract; FileName: string; Result: FisherResponse option; IsLoading: bool }
 
 // The Msg type defines what events/actions can occur while the application is running
 // the state of the application changes *only* in reaction to these events
@@ -33,6 +33,7 @@ type Msg =
 | GetFisherFactor
 | GetFisherFactorSuccess of FisherResponse
 | InitialCountLoaded of Result<Counter, exn>
+| ChangeMode of mode: FeatureExtract
 | Error of exn
 
 
@@ -68,7 +69,7 @@ let sendFileCmd (query : FormData) = Cmd.ofPromise sendFile query FileUploadSucc
 let getFisherFactorCmd(dimension: int) = Cmd.ofAsync getFisherFactor dimension GetFisherFactorSuccess Error
 // defines the initial state and initial command (= side-effect) of the application
 let init () : Model * Cmd<Msg> =
-    let initialModel = { Counter = Some(1); FileName = ""; Result = None; IsLoading = false }
+    let initialModel = { Counter = Some(1); FileName = ""; Result = None; IsLoading = false; Mode = Fisher }
     initialModel, Cmd.none
 
 // The update function computes the next state of the application based on the current state and the incoming events/messages
@@ -83,7 +84,7 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
         let nextModel = { currentModel with Counter = if x = 1 then Some(1) else Some (x - 1) }
         nextModel, Cmd.none
     | _, InitialCountLoaded (Ok initialCount)->
-        let nextModel = { Counter = Some initialCount; FileName = ""; Result = None; IsLoading = false }
+        let nextModel = { Counter = Some initialCount; FileName = ""; Result = None; IsLoading = false; Mode = Fisher }
         nextModel, Cmd.none
     | _, FileUpload file ->
         let formData = FormData.Create()
