@@ -3,7 +3,7 @@ namespace Shared
 open System.IO
 type Counter = int
 
-type FisherResponse = { index: (int * int) list; value: float }
+type FisherResponse = { index: int list; value: float }
 
 type FeatureExtract =
     | Fisher
@@ -17,6 +17,6 @@ module Route =
 /// A type that specifies the communication protocol between client and server
 /// to learn more, read the docs at https://zaid-ajaj.github.io/Fable.Remoting/src/basics.html
 type IFisherApi =
-    { getFisherForDimension: int -> Async<FisherResponse> }
+    { getFisherForDimension: int -> FeatureExtract-> Async<FisherResponse> }
 
 

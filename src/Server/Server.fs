@@ -15,12 +15,11 @@ open Fable.Remoting.Server
 open Fable.Remoting.Giraffe
 open Microsoft.AspNetCore.Http.Features
 open System.Threading
-open Service
 
 let publicPath = Path.GetFullPath "../Client/public"
 let port = 8085us
 
-let getFisherForDimension (dimension: int) : Async<FisherResponse> = Service.getFisherFactor(dimension)
+let getFisherForDimension (dimension: int)  (t: FeatureExtract): Async<FisherResponse> = Service.getFisherFactor(dimension) t
 let counterApi = {
     getFisherForDimension = getFisherForDimension
 }

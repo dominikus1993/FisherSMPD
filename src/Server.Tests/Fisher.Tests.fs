@@ -1,7 +1,6 @@
 module Fisher.Tests
 open Expecto
 open MathNet.Numerics.LinearAlgebra
-open FisherMath
 
 [<Tests>]
 let testFisher =
@@ -33,11 +32,22 @@ let testFisher =
         ]
         testList "sfs" [
             testList "combinations" [
-                test "get possible combinations 2 dim of 64" {
-                    let subject = FisherMath.sfsCombinations 2 4 1
-                    Expect.sequenceEqual subject [[0;1]; [1;2]; [1;3];] ""
+                test "get possible combinations 2 dim of 4" {
+                    let subject = FisherMath.sfsCombinations 2 4 [1]
+                    Expect.sequenceEqual subject [[0;1]; [1;2]; [1;3]] ""
+                }
+                test "get possible combinations 3 dim of 4" {
+                    let subject = FisherMath.sfsCombinations 3 4 [1; 2]
+                    Expect.sequenceEqual subject [[0;1;2]; [1;2;3]] ""
                 }
             ]
+//            testList "count" [
+//                testCaseAsync "Test for two dimension" <| async {
+//                    let subject = FisherMath.sfs (matrix []) (matrix []) 2 3
+//                    Expect.equal subject.index [(1); (33)] ""
+//                    Expect.floatClose Accuracy.low subject.value 67458992.995955 ""
+//                }
+//            ]
         ]
     ]
 

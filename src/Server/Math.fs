@@ -3,6 +3,7 @@ module FisherMath
 open System
 open MathNet.Numerics.Statistics
 open MathNet.Numerics.LinearAlgebra
+open Shared
 
 let getPossibleCombinations m n =
     let rec fC prefix m from = seq {
@@ -52,17 +53,22 @@ let FMD(matrixA: Matrix<float>)(ua: Matrix<float>)(matrixB: Matrix<float>)(ub: M
     let dist = ua.Column(0) |> distance (ub.Column(0))
     dist / det
 
-let sfsCombinations d featureCount index =
-    getPossibleCombinations d featureCount |> Seq.filter(fun x -> x |> List.contains(index)) |> Seq.toList
+let sfsCombinations d featureCount indexes =
+    let len = d - (indexes |> List.length)
+    getPossibleCombinations d featureCount |> Seq.filter(fun x -> (Set.ofList x) - (Set.ofList indexes) |> Set.count = len) |> Seq.toList
+
 let sfs (matrixA: Matrix<float>)(matrixB: Matrix<float>)(dimension: int)(featureCount: int) =
     let mean1, mean2 = matrixA |> getAverageVector, matrixB |> getAverageVector
-    let rec f (m1)(m2) d index =
+    let rec f (m1: Matrix<float>)(m2: Matrix<float>) d fisher =
         if d = 1 then
-            let (_, index) = matrixA.ToRowArrays() |> Array.zip (matrixB.ToRowArrays() |> Array.indexed) |> Array.map(fun ((index, x1), x2) -> F (vector x1)(vector x2), index) |> Array.maxBy(fun (f, _) -> f)
-            f m1 m2 (d + 1) index
+            let (fisher, index) = m1.ToRowArrays() |> Array.zip (m2.ToRowArrays() |> Array.indexed) |> Array.map(fun ((index, x1), x2) -> F (vector x1)(vector x2), index) |> Array.maxBy(fun (f, _) -> f)
+            f m1 m2 (d + 1) ({ index = [index]; value = fisher })
         elif d > 1 && d <= dimension then
-            let combinations = getPossibleCombinations d featureCount |> Seq.filter(fun x -> x |> List.contains(index)) |> Seq.toList
-            2
+            let combinations = sfsCombinations d featureCount fisher.index
+            let matrixCombinations1 = combinations |> List.map(fun x -> struct (x, buildArrayFromListOfIndexes m1 x, buildArrayFromListOfIndexes mean1 x)) |> Seq.toList
+            let matrixCombinations2 = combinations |> List.map(fun x -> struct (x, buildArrayFromListOfIndexes m2 x, buildArrayFromListOfIndexes mean2 x)) |> Seq.toList
+            let struct (i, _, fisher) = matrixCombinations1 |> List.zip(matrixCombinations2) |> List.map(fun (struct (c1, ma1, m1), struct (c2, ma2, m2)) -> struct (c1, c2, FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f)
+            f m1 m2 (d + 1) ({ index = i; value = fisher })
         else
-            2
-    4
+            fisher
+    f matrixA matrixB 1 { index = []; value = 0.0 }
