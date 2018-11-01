@@ -9,13 +9,13 @@ open Fable.PowerPack.Fetch
 open Fable.PowerPack
 open Fable.Core.JsInterop
 open Thoth.Json
-
 open Shared
 open Fable.Core.DynamicExtensions
 open Fulma
 open System.IO
 open Fable.Import.Browser
 open System.Net.Http
+open Fulma.Extensions
 
 // The model holds data that you want to keep track of while the application is running
 // in this case, we are keeping track of a counter
@@ -60,13 +60,13 @@ let sendFile (formData: FormData) =
         else
             return failwith "file upload error"
     }
-let getFisherFactor (dimension) =
+let getFisherFactor (dimension, mode) =
     async {
-        let! result = Server.api.getFisherForDimension(dimension) Sfs
+        let! result = Server.api.getFisherForDimension(dimension)(mode)
         return result
     }
 let sendFileCmd (query : FormData) = Cmd.ofPromise sendFile query FileUploadSuccess Error
-let getFisherFactorCmd(dimension: int) = Cmd.ofAsync getFisherFactor dimension GetFisherFactorSuccess Error
+let getFisherFactorCmd(dimension: int, mode: FeatureExtract) = Cmd.ofAsync getFisherFactor (dimension, mode) GetFisherFactorSuccess Error
 // defines the initial state and initial command (= side-effect) of the application
 let init () : Model * Cmd<Msg> =
     let initialModel = { Counter = Some(1); FileName = ""; Result = None; IsLoading = false; Mode = Fisher }
@@ -93,9 +93,11 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
     | _, FileUploadSuccess filename ->
         {currentModel with FileName = filename }, Cmd.none
     | Some(dimension), GetFisherFactor ->
-        {currentModel with IsLoading = true }, getFisherFactorCmd(dimension)
+        {currentModel with IsLoading = true }, getFisherFactorCmd(dimension, currentModel.Mode)
     | _, GetFisherFactorSuccess resp ->
         {currentModel with Result = Some(resp); IsLoading = false }, Cmd.none
+    | _, ChangeMode mode ->
+        {currentModel with Mode = mode}, Cmd.none
     | _, Error e ->
         printf "%A" e
         currentModel, Cmd.none
@@ -169,6 +171,9 @@ let view (model : Model) (dispatch : Msg -> unit) =
                 else
                     yield button "Oblicz" (fun _ -> dispatch GetFisherFactor)
           ]
+          Field.div [ ]
+            [ yield! Checkradio.radioInline [ Checkradio.Name "Fisher"; Checkradio.Checked(match model.Mode with | Fisher -> true | Sfs -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeMode(Fisher)) ) ] [ str "One" ]
+              yield! Checkradio.radioInline [ Checkradio.Name "Sfs"; Checkradio.Checked(match model.Mode with | Fisher -> false | Sfs -> true); Checkradio.OnChange(fun _ -> dispatch (ChangeMode(Fisher)) ) ] [ str "Two " ] ]
           Field.div [ ] [
                 h1 [] [ str (showResult model) ]
           ]

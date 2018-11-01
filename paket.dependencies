@@ -27,6 +27,7 @@ group Client
     nuget Fable.React ~> 4
     nuget Fable.Remoting.Client ~> 4
     nuget Fulma ~> 1
+    nuget Fulma.Extensions ~> 1
 
     clitool dotnet-fable ~> 2
 

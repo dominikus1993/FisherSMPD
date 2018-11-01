@@ -7,3 +7,4 @@ group Client
     dotnet-fable
     Fulma
     Fable.Remoting.Client
+    Fulma.Extensions
