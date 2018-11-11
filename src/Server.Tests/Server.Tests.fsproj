@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Classifiers.Tests.fs" />
     <Compile Include="Database.Tests.fs" />
     <Compile Include="Fisher.Tests.fs" />
     <Compile Include="Service.Tests.fs" />
