@@ -1,15 +1,43 @@
 module Classifiers
 open Types
 open System
-open MathNet.Numerics.LinearAlgebra.VectorExtensions
-open MathNet.Numerics.LinearAlgebra
-open MathNet.Numerics.Statistics
 open MathNet.Numerics.Statistics
 
-let extractTraingSet (state: State) percent=
-    let trainingProbes = state.Features |> Map.toList |> List.sortBy(fun _ -> Guid.NewGuid())
-    let take = (percent * (trainingProbes |> List.length)) / 100
-    { FeaturesCount = 64; Features = trainingProbes |> List.take take |> Map.ofList }, { FeaturesCount = 64; Features = trainingProbes |> List.skip take |> Map.ofList}
+
+let extractTraingSet (state: State) percent =
+    let trainingProbes = state.Features |> Map.toArray |> Array.collect(fun (key, x) -> x |> Array.collect(id) |> Array.map(fun y -> key, y)) |> Array.sortBy(fun _ -> Guid.NewGuid())
+    let take = (percent * (trainingProbes |> Array.length)) / 100
+    let trainingset = trainingProbes
+                        |> Array.take take
+                        |> Array.groupBy(fun (k, _) -> k)
+                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+                        |> Array.groupBy (fun (k, _) -> k)
+                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+    let rest = trainingProbes
+                        |> Array.skip take
+                        |> Array.groupBy(fun (k, _) -> k)
+                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+                        |> Array.groupBy (fun (k, _) -> k)
+                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+
+    { FeaturesCount = 64; Features = trainingset |> Map.ofArray }, { FeaturesCount = 64; Features = rest |> Map.ofArray}
+
+module Enchancments =
+    let bootstrat  (state: State) iterations =
+        let arr = state.Features |> Map.toArray |> Array.collect(fun (key, x) -> x |> Array.collect(id) |> Array.map(fun y -> key, y))
+        let rnd = Random(iterations)
+        let res = seq {
+            for _ in [0..iterations] do
+                yield arr.[rnd.Next(0, arr.Length)]
+        }
+        let trainingset = res
+                            |> Seq.toArray
+                            |> Array.groupBy(fun (k, f) -> k)
+                            |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+                            |> Array.groupBy (fun (k, x) -> k)
+                            |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+        { FeaturesCount = 64; Features = trainingset |> Map.ofArray }
+
 
 module KNN =
     let distF (arr1) (arr2) =
