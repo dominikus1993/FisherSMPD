@@ -72,3 +72,20 @@ let sfs (matrixA: Matrix<float>)(matrixB: Matrix<float>)(dimension: int)(feature
         else
             fisher
     f matrixA matrixB 1 { index = []; value = 0.0 }
+
+
+let fs (matrixA: Matrix<float>)(matrixB: Matrix<float>)(dimension: int)(featureCount: int) =
+    if dimension = 1 then
+        let (i, j, f) =
+            seq {
+                for ((i, m1), (j, m2)) in matrixA.ToRowArrays() |> Array.indexed |> Array.zip(matrixB.ToRowArrays() |> Array.indexed) do
+                    yield (i, j, F (vector m1) (vector m2) )
+            } |> Seq.maxBy(fun (_, _, fisher) -> fisher)
+        { index = [i] ; value = f }
+    else
+        let mean1, mean2 = matrixA |> getAverageVector, matrixB |> getAverageVector
+        let combinations = getPossibleCombinations dimension featureCount |> Seq.toList
+        let matrixCombinations1 = combinations |> List.map(fun x -> struct (x, buildArrayFromListOfIndexes matrixA x, buildArrayFromListOfIndexes mean1 x)) |> Seq.toList
+        let matrixCombinations2 = combinations |> List.map(fun x -> struct (x, buildArrayFromListOfIndexes matrixB x, buildArrayFromListOfIndexes mean2 x)) |> Seq.toList
+        let struct (i, _, f) = matrixCombinations1 |> List.zip(matrixCombinations2) |> List.map(fun (struct (c1, ma1, m1), struct (c2, ma2, m2)) -> struct (c1, c2, FMD ma1 m1 ma2 m2)) |> List.maxBy(fun struct (_, _, f) -> f)
+        { index =  i; value = f }

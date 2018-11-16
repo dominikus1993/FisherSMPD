@@ -20,8 +20,11 @@ let publicPath = Path.GetFullPath "../Client/public"
 let port = 8085us
 
 let getFisherForDimension (dimension: int)  (t: FeatureExtract): Async<FisherResponse> = Service.getFisherFactor(dimension) t
+let generateTrainingData enc = async { return Service.enchance enc }
 let counterApi = {
     getFisherForDimension = getFisherForDimension
+    generateTrainingData = generateTrainingData
+    classify = Service.classify
 }
 
 let remoting =

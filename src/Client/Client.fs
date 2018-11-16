@@ -16,12 +16,13 @@ open System.IO
 open Fable.Import.Browser
 open System.Net.Http
 open Fulma.Extensions
+open System
 
 // The model holds data that you want to keep track of while the application is running
 // in this case, we are keeping track of a counter
 // we mark it as optional, because initially it will not be available from the client
 // the initial value will be requested from server
-type Model = { Counter: Counter option; Mode: FeatureExtract; FileName: string; Result: FisherResponse option; IsLoading: bool }
+type Model = { Counter: Counter option; Mode: FeatureExtract; FileName: string; Result: FisherResponse option; IsLoading: bool; Enc: Enhancements; Classifier: Classifier; Val: int; K: int; ClassificationResult: int option }
 
 // The Msg type defines what events/actions can occur while the application is running
 // the state of the application changes *only* in reaction to these events
@@ -34,6 +35,14 @@ type Msg =
 | GetFisherFactorSuccess of FisherResponse
 | InitialCountLoaded of Result<Counter, exn>
 | ChangeMode of mode: FeatureExtract
+| ChangeTraingSetGenMode of mode: Enhancements
+| ChangeClassificationMode of mode: Classifier
+| Classify
+| ClassificationSuccess of ClassificationResult
+| GeneratTrainingData
+| GeneratTrainingDataSuccess of unit
+| ChangeVal of int
+| ChangeK of int
 | Error of exn
 
 
@@ -67,9 +76,11 @@ let getFisherFactor (dimension, mode) =
     }
 let sendFileCmd (query : FormData) = Cmd.ofPromise sendFile query FileUploadSuccess Error
 let getFisherFactorCmd(dimension: int, mode: FeatureExtract) = Cmd.ofAsync getFisherFactor (dimension, mode) GetFisherFactorSuccess Error
+let generateTrainingData(mode) = Cmd.ofAsync Server.api.generateTrainingData mode GeneratTrainingDataSuccess Error
+let classify(mode) = Cmd.ofAsync Server.api.classify mode ClassificationSuccess Error
 // defines the initial state and initial command (= side-effect) of the application
 let init () : Model * Cmd<Msg> =
-    let initialModel = { Counter = Some(1); FileName = ""; Result = None; IsLoading = false; Mode = Fisher }
+    let initialModel = { Counter = Some(1); FileName = ""; Result = None; IsLoading = false; Mode = Fisher; Enc = NoneEnc(0); Classifier = NN; Val = 1; K = 1; ClassificationResult = None }
     initialModel, Cmd.none
 
 // The update function computes the next state of the application based on the current state and the incoming events/messages
@@ -84,7 +95,7 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
         let nextModel = { currentModel with Counter = if x = 1 then Some(1) else Some (x - 1) }
         nextModel, Cmd.none
     | _, InitialCountLoaded (Ok initialCount)->
-        let nextModel = { Counter = Some initialCount; FileName = ""; Result = None; IsLoading = false; Mode = Fisher }
+        let nextModel = {currentModel with Counter = Some initialCount }
         nextModel, Cmd.none
     | _, FileUpload file ->
         let formData = FormData.Create()
@@ -98,6 +109,33 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
         {currentModel with Result = Some(resp); IsLoading = false }, Cmd.none
     | _, ChangeMode mode ->
         {currentModel with Mode = mode}, Cmd.none
+    | _, ChangeTraingSetGenMode(mode) ->
+        {currentModel with Enc = mode }, Cmd.none
+    | _, ChangeClassificationMode(mode) ->
+        {currentModel with Classifier = mode }, Cmd.none
+    | _, GeneratTrainingData ->
+        currentModel, generateTrainingData currentModel.Enc
+    | _, ChangeVal(value) ->
+        match currentModel.Enc with
+        | NoneEnc x ->
+            {currentModel with Enc = NoneEnc(value); Val = value }, Cmd.none
+        | Bootstrap x ->
+            if value < 0 || value >= 100 then
+                {currentModel with Enc = Bootstrap(value); Val = value }, Cmd.none
+            else
+                {currentModel with Enc = Bootstrap(value); Val = value }, Cmd.none
+    | _, ChangeK k ->
+        match currentModel.Classifier with
+        | KNN(_) ->
+            {currentModel with Classifier = KNN(k); K = k }, Cmd.none
+        | KNM(_) ->
+            {currentModel with Classifier = KNM(k); K = k }, Cmd.none
+        | _ ->
+            {currentModel with K = k }, Cmd.none
+    | _, Classify ->
+        {currentModel with IsLoading = true }, classify currentModel.Classifier
+    | _, ClassificationSuccess res ->
+        { currentModel with ClassificationResult = Some res.PercentPositiveResults; IsLoading = false}, Cmd.none
     | _, Error e ->
         printf "%A" e
         currentModel, Cmd.none
@@ -133,6 +171,9 @@ let showResult = function
 | { Result = Some x } -> sprintf "Wynik to %A dla indeksów %A" x.value x.index
 | { Result = None   } -> ""
 
+let showClassification = function
+| { ClassificationResult = Some x } -> sprintf "Wynik to %A " x
+| { ClassificationResult = None   } -> ""
 
 let button txt onClick =
     Button.button
@@ -165,17 +206,45 @@ let view (model : Model) (dispatch : Msg -> unit) =
                           Fulma.File.name [ ]
                             [ str model.FileName ] ] ] ]
           ]
+          Field.div [ ]
+            [ yield! Checkradio.radioInline [ Checkradio.Name "Fisher"; Checkradio.Checked(match model.Mode with | Fisher -> true | Sfs -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeMode(Fisher)) ) ] [ str "Fisher" ]
+              yield! Checkradio.radioInline [ Checkradio.Name "Sfs"; Checkradio.Checked(match model.Mode with | Fisher -> false | Sfs -> true); Checkradio.OnChange(fun _ -> dispatch (ChangeMode(Sfs)) ) ] [ str "Sfs " ] ]
           Field.div [ ] [
                 if model.IsLoading then
                     yield button "Obliczam" (fun _ -> ())
                 else
                     yield button "Oblicz" (fun _ -> dispatch GetFisherFactor)
           ]
-          Field.div [ ]
-            [ yield! Checkradio.radioInline [ Checkradio.Name "Fisher"; Checkradio.Checked(match model.Mode with | Fisher -> true | Sfs -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeMode(Fisher)) ) ] [ str "One" ]
-              yield! Checkradio.radioInline [ Checkradio.Name "Sfs"; Checkradio.Checked(match model.Mode with | Fisher -> false | Sfs -> true); Checkradio.OnChange(fun _ -> dispatch (ChangeMode(Fisher)) ) ] [ str "Two " ] ]
           Field.div [ ] [
                 h1 [] [ str (showResult model) ]
+          ]
+          Field.div [ ]
+            [ yield Input.text [ Input.Placeholder "Procenty lub iteracje"; Input.Type(Input.Number); Input.OnChange (fun x -> dispatch(ChangeVal(Int32.Parse(x.Value)))) ]
+              yield! Checkradio.radioInline [ Checkradio.Name "None"; Checkradio.Checked(match model.Enc with | NoneEnc(_) -> true | Bootstrap(_) -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeTraingSetGenMode(NoneEnc(if model.Val >= 100 then 99 else model.Val))) ) ] [ str "None" ]
+              yield! Checkradio.radioInline [ Checkradio.Name "Bootstrap"; Checkradio.Checked(match model.Enc with | NoneEnc(_) -> false | Bootstrap(_) -> true); Checkradio.OnChange(fun _ -> dispatch (ChangeTraingSetGenMode(Bootstrap(model.Val))) ) ] [ str "Bootstrap " ] ]
+
+          Field.div [ ] [
+                if model.IsLoading then
+                    yield button "Obliczam" (fun _ -> ())
+                else
+                    yield button "Zmien model generowania danych" (fun _ -> dispatch GeneratTrainingData)
+          ]
+
+          Field.div [ ]
+            [ yield Input.text [ Input.Placeholder "K"; Input.Type(Input.Number); Input.OnChange (fun x -> dispatch(ChangeK(Int32.Parse(x.Value)))) ]
+              yield! Checkradio.radioInline [ Checkradio.Name "NN"; Checkradio.Checked(match model.Classifier with | NN-> true | _ -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeClassificationMode(NN) ))] [ str "NN" ]
+              yield! Checkradio.radioInline [ Checkradio.Name "KNM"; Checkradio.Checked(match model.Classifier with | KNN(_)-> true | _ -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeClassificationMode(KNN(model.K)) ))] [ str "KNN" ]
+              yield! Checkradio.radioInline [ Checkradio.Name "NM"; Checkradio.Checked(match model.Classifier with | NM -> true | _ -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeClassificationMode(NM) ))] [ str "NM" ]
+              yield! Checkradio.radioInline [ Checkradio.Name "KNM"; Checkradio.Checked(match model.Classifier with | KNM(_) -> true | _ -> false); Checkradio.OnChange(fun _ -> dispatch (ChangeClassificationMode(KNM(model.K)) ))] [ str "KNM" ] ]
+
+          Field.div [ ] [
+                if model.IsLoading then
+                    yield button "Obliczam" (fun _ -> ())
+                else
+                    yield button "Klasyfikuj" (fun _ -> dispatch Classify)
+          ]
+          Field.div [ ] [
+                h1 [] [ str (showClassification model) ]
           ]
           Footer.footer [ ]
                 [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Fulma.Screen.All, TextAlignment.Centered) ] ]

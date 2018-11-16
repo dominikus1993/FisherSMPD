@@ -2,40 +2,38 @@ module Classifiers
 open Types
 open System
 open MathNet.Numerics.Statistics
-
+open MathNet.Numerics.LinearAlgebra
 
 let extractTraingSet (state: State) percent =
-    let trainingProbes = state.Features |> Map.toArray |> Array.collect(fun (key, x) -> x |> Array.collect(id) |> Array.map(fun y -> key, y)) |> Array.sortBy(fun _ -> Guid.NewGuid())
+    let trainingProbes = state.Features |> Map.toArray |> Array.collect(fun (key, arr) -> arr |> Array.map(fun x -> key, x))
     let take = (percent * (trainingProbes |> Array.length)) / 100
+    printfn "Take %A" take
     let trainingset = trainingProbes
                         |> Array.take take
                         |> Array.groupBy(fun (k, _) -> k)
                         |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
-                        |> Array.groupBy (fun (k, _) -> k)
-                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+
     let rest = trainingProbes
                         |> Array.skip take
                         |> Array.groupBy(fun (k, _) -> k)
                         |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
-                        |> Array.groupBy (fun (k, _) -> k)
-                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
-
     { FeaturesCount = 64; Features = trainingset |> Map.ofArray }, { FeaturesCount = 64; Features = rest |> Map.ofArray}
 
 module Enchancments =
-    let bootstrat  (state: State) iterations =
-        let arr = state.Features |> Map.toArray |> Array.collect(fun (key, x) -> x |> Array.collect(id) |> Array.map(fun y -> key, y))
+    let bootstrap  (state: State) iterations =
+        let arr = state.Features |> Map.toArray |> Array.collect(fun (key, arr) -> arr |> Array.map(fun x -> key, x))
         let rnd = Random(iterations)
+        printfn "%A" iterations
         let res = seq {
             for _ in [0..iterations] do
-                yield arr.[rnd.Next(0, arr.Length)]
+                yield arr.[rnd.Next(0, arr.Length - 1)]
         }
+        printfn "EEEE %A" res
         let trainingset = res
                             |> Seq.toArray
                             |> Array.groupBy(fun (k, f) -> k)
                             |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
-                            |> Array.groupBy (fun (k, x) -> k)
-                            |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
+        printfn "%A" trainingset
         { FeaturesCount = 64; Features = trainingset |> Map.ofArray }
 
 
@@ -71,7 +69,6 @@ module KNM =
                         |> List.groupBy(fun (k, f) -> k)
                         |> List.maxBy(fun (k, f) -> f |> List.length)
         c
-
     let nm = clssify 1
 
     let knm = clssify
