@@ -1,11 +1,14 @@
 module Types
+open MathNet.Numerics.LinearAlgebra
 
 type DeviceType = { Name: string }
 
-type State = { FeaturesCount: int; Features: Map<string, float array array> }
+type Object = { className: string; Features: float array }
+
+type State = { FeaturesCount: int; Features: Object array }
 with
     static member Zero () =
-        { FeaturesCount = 0; Features = [] |> Map.ofList }
+        { FeaturesCount = 0; Features = Array.empty }
 
 type MailboxState = { State: State; TrainingSet: State; ForClassificationSet: State }
 with

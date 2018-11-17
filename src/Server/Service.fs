@@ -83,17 +83,17 @@ let classify classificationMode =
     async {
         try
             let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
-            printfn "%A" state.TrainingSet
+            printfn "%A" classificationMode
             let func = match classificationMode with
                        | NN -> Classifiers.KNN.nn
                        | KNN k -> Classifiers.KNN.knn k
                        | NM -> Classifiers.KNM.nm
                        | KNM k -> Classifiers.KNM.knm k
-            let arr = state.ForClassificationSet.Features |> Map.toArray |> Array.collect(fun (key, arr) -> arr |> Array.map(fun x -> key, x))
+            let arr = state.TrainingSet.Features |> Map.toArray |> Array.collect(fun (key, arr) -> arr |> Array.map(fun x -> key, x))
             let count = arr |> Array.length
             let elements = arr
                             |> Array.map(fun (k, arr) ->
-                                            let classificationResult = func state.TrainingSet arr
+                                            let classificationResult = func state.ForClassificationSet arr
                                             k = classificationResult
                                         )
                             |> Array.filter(fun x -> x)
