@@ -54,8 +54,9 @@ let FMD(matrixA: Matrix<float>)(ua: Matrix<float>)(matrixB: Matrix<float>)(ub: M
     dist / det
 
 let sfsCombinations d featureCount indexes =
-    let len = d - (indexes |> List.length)
-    getPossibleCombinations d featureCount |> Seq.filter(fun x -> (Set.ofList x) - (Set.ofList indexes) |> Set.count = len) |> Seq.toList
+    [0..featureCount - 1]
+        |> List.filter(fun x -> indexes |> List.contains(x) |> not)
+        |> List.map(fun x -> x::indexes)
 
 let sfs (matrixA: Matrix<float>)(matrixB: Matrix<float>)(dimension: int)(featureCount: int) =
     let mean1, mean2 = matrixA |> getAverageVector, matrixB |> getAverageVector

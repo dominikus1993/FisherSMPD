@@ -34,11 +34,11 @@ let testFisher =
             testList "combinations" [
                 test "get possible combinations 2 dim of 4" {
                     let subject = FisherMath.sfsCombinations 2 4 [1]
-                    Expect.sequenceEqual subject [[0;1]; [1;2]; [1;3]] ""
+                    Expect.sequenceEqual subject [[0;1]; [2;1]; [3;1]] ""
                 }
                 test "get possible combinations 3 dim of 4" {
                     let subject = FisherMath.sfsCombinations 3 4 [1; 2]
-                    Expect.sequenceEqual subject [[0;1;2]; [1;2;3]] ""
+                    Expect.sequenceEqual subject [[0;1;2]; [3;1;2]] ""
                 }
             ]
 //            testList "count" [
