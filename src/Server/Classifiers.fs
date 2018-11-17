@@ -3,52 +3,39 @@ open Types
 open System
 open MathNet.Numerics.Statistics
 open MathNet.Numerics.LinearAlgebra
+open Types
 
 let extractTraingSet (state: State) percent =
-    let trainingProbes = state.Features |> Map.toArray |> Array.collect(fun (key, arr) -> arr |> Array.map(fun x -> key, x))
-    let take = (percent * (trainingProbes |> Array.length)) / 100
+    let take = (percent * (state.Objects |> Array.length)) / 100
     printfn "Take %A" take
-    let trainingset = trainingProbes
+    let trainingset = state.Objects
                         |> Array.take take
-                        |> Array.groupBy(fun (k, _) -> k)
-                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
-
-    let rest = trainingProbes
+    let rest = state.Objects
                         |> Array.skip take
-                        |> Array.groupBy(fun (k, _) -> k)
-                        |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
-    { FeaturesCount = 64; Features = trainingset |> Map.ofArray }, { FeaturesCount = 64; Features = rest |> Map.ofArray}
+    { FeaturesCount = 64; Objects = trainingset }, { FeaturesCount = 64; Objects = rest }
 
 module Enchancments =
     let bootstrap  (state: State) iterations =
-        let arr = state.Features |> Map.toArray |> Array.collect(fun (key, arr) -> arr |> Array.map(fun x -> key, x))
+        let arr = state.Objects
         let rnd = Random(iterations)
-        printfn "%A" iterations
         let res = seq {
             for _ in [0..iterations] do
                 yield arr.[rnd.Next(0, arr.Length - 1)]
         }
-        printfn "EEEE %A" res
-        let trainingset = res
-                            |> Seq.toArray
-                            |> Array.groupBy(fun (k, f) -> k)
-                            |> Array.map(fun (k, x) -> k, x |> Array.map(fun (k, y) -> y))
-        printfn "%A" trainingset
-        { FeaturesCount = 64; Features = trainingset |> Map.ofArray }
+        { FeaturesCount = 64; Objects = res |> Seq.toArray }
 
 
 module KNN =
     let distF (arr1) (arr2) =
-        arr1 |> Array.zip arr2 |> Array.map((fun (i, j) -> (i - j) ** 2.0) >> fun x -> Math.Sqrt(x))
+        arr1 |> Array.zip arr2 |> Array.map((fun (i, j) -> (i - j) ** 2.0) >> fun x -> Math.Sqrt(x)) |> Array.sum
 
-    let clssify (distf) k (state: State) (element: float array) =
-        let (c, _) = state.Features
-                            |> Map.toList
-                            |> List.collect(fun (key, f) -> f |> Array.collect(fun x -> distf x element) |> Array.map(fun x -> key, x) |> Array.toList)
-                            |> List.sortBy(fun (_, f) -> f)
-                            |> List.take(k)
-                            |> List.groupBy(fun (k, f) -> k)
-                            |> List.maxBy(fun (k, f) -> f |> List.length)
+    let clssify (distf: float array -> float array -> float) k (trainingState: State) (element: Object) =
+        let (c, _) = trainingState.Objects
+                            |> Array.map(fun o -> distf o.Features element.Features, o.ClassName)
+                            |> Array.sortBy(fun (dist, _) -> dist)
+                            |> Array.take(k)
+                            |> Array.groupBy(fun (_, k) -> k)
+                            |> Array.maxBy(fun (_, f) -> f |> Array.length)
         c
 
     let nn = clssify distF 1
@@ -57,17 +44,16 @@ module KNN =
 
 module KNM =
 
-    let clssify k (state: State) (element: float array)  =
-        let means = state.Features
-                        |> Map.toList
-                        |> List.collect(fun (k, f) -> f |> Array.map((fun x -> x |> Statistics.Mean) >> (fun x -> k, x)) |> Array.toList)
-        let mean = element |> Statistics.Mean
+    let clssify k (state: State) (element: Object)  =
+        let means = state.Objects
+                        |> Array.map(fun o -> o.ClassName, o.Features |> Statistics.Mean)
+        let mean = element.Features |> Statistics.Mean
         let (c, _) = means
-                        |> List.map((fun (key, f) -> key, (f - mean) ** 2.0) >> fun (key, x) -> key, Math.Sqrt(x))
-                        |> List.sortBy(fun (_, f) -> f)
-                        |> List.take(k)
-                        |> List.groupBy(fun (k, f) -> k)
-                        |> List.maxBy(fun (k, f) -> f |> List.length)
+                        |> Array.map((fun (key, f) -> key, (f - mean) ** 2.0) >> fun (key, x) -> key, Math.Sqrt(x))
+                        |> Array.sortBy(fun (_, f) -> f)
+                        |> Array.take(k)
+                        |> Array.groupBy(fun (k, f) -> k)
+                        |> Array.maxBy(fun (k, f) -> f |> Array.length)
         c
     let nm = clssify 1
 

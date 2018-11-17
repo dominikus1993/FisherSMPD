@@ -3,12 +3,12 @@ open MathNet.Numerics.LinearAlgebra
 
 type DeviceType = { Name: string }
 
-type Object = { className: string; Features: float array }
+type Object = { ClassName: string; Features: float array }
 
-type State = { FeaturesCount: int; Features: Object array }
+type State = { FeaturesCount: int; Objects: Object array }
 with
     static member Zero () =
-        { FeaturesCount = 0; Features = Array.empty }
+        { FeaturesCount = 0; Objects = Array.empty }
 
 type MailboxState = { State: State; TrainingSet: State; ForClassificationSet: State }
 with

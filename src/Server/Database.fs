@@ -34,13 +34,9 @@ let read (stream: Stream) =
                     |> Stream.take 10000L
                     |> Stream.foldFun(fun acc x ->  match x with
                                                     | MetaData(d) ->
-                                                         { acc with FeaturesCount = d}
+                                                        { acc with FeaturesCount = d}
                                                     | FeatureData(n, values) ->
-                                                         match acc.Features.TryFind(n) with
-                                                         | Some(features) ->
-                                                            { acc with Features = acc.Features |> Map.add n (Array.concat [[|values|]; features] )}
-                                                         | None ->
-                                                            { acc with Features = acc.Features |> Map.add n [|values|]}
-                                                    | _ -> acc) { FeaturesCount = 0; Features = [] |> Map.ofList }
+                                                        { acc with Objects = acc.Objects |> Array.append([|{ ClassName = n; Features = values }|]) }
+                                                    | _ -> acc) { FeaturesCount = 0; Objects = [||] }
         return result
     } |> Job.toAsync

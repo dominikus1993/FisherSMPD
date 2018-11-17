@@ -15,6 +15,7 @@ open Classifiers
 open Newtonsoft.Json
 open Hopac.Extensions
 open Hopac.Extensions
+open Hopac.Extensions
 
 type Msg =
     | Store of state: State
@@ -58,22 +59,17 @@ let uploadDatabaseFile (stream: Stream) =
 let getFisherFactor dimension mode =
     async {
         let! state = Agent.PostAndAsyncReply(fun ch -> Get(ch))
-        let keys = state.State.Features |> Map.toList |> List.map(fun (k, _) -> k) |> List.take 2
+        let keys = state.State.Objects |> Array.groupBy(fun x -> x.ClassName) |> Array.map(fun (k, a) -> a) |> Array.take 2
         let! possibleDimensions = Agent.PostAndAsyncReply(fun ch -> GetPossibleDimension(ch))
-        match keys with
-            | [first; second] ->
-               match state.State.Features |> Map.tryFind(first), state.State.Features |> Map.tryFind(second) with
-               | Some(f1), Some(f2) ->
-                    let matrix1, matrix2 = matrix f1 |> Matrix.transpose, matrix f2 |> Matrix.transpose
-                    match mode with
-                    | Fisher ->
-                        return FisherMath.fs matrix1 matrix2 dimension possibleDimensions
-                    | Sfs ->
-                        return FisherMath.sfs matrix1 matrix2 dimension possibleDimensions
-               | _ ->
-                  return { index = []; value = 0.0 }
-            | _ ->
-                return { index = []; value = 0.0 }
+        if keys |> Array.length = 2 then
+            let matrix1, matrix2 = matrix (keys.[0] |> Array.map(fun x -> x.Features)) |> Matrix.transpose, matrix (keys.[1] |> Array.map(fun x -> x.Features)) |> Matrix.transpose
+            match mode with
+            | Fisher ->
+                return FisherMath.fs matrix1 matrix2 dimension possibleDimensions
+            | Sfs ->
+                return FisherMath.sfs matrix1 matrix2 dimension possibleDimensions
+        else
+            return { index = []; value = 0.0 }
     }
 
 let enchance enc =
@@ -89,12 +85,11 @@ let classify classificationMode =
                        | KNN k -> Classifiers.KNN.knn k
                        | NM -> Classifiers.KNM.nm
                        | KNM k -> Classifiers.KNM.knm k
-            let arr = state.TrainingSet.Features |> Map.toArray |> Array.collect(fun (key, arr) -> arr |> Array.map(fun x -> key, x))
-            let count = arr |> Array.length
-            let elements = arr
-                            |> Array.map(fun (k, arr) ->
-                                            let classificationResult = func state.ForClassificationSet arr
-                                            k = classificationResult
+            let count = state.TrainingSet.Objects |> Array.length
+            let elements = state.TrainingSet.Objects
+                            |> Array.map(fun o ->
+                                            let classificationResult = func state.ForClassificationSet o
+                                            o.ClassName = classificationResult
                                         )
                             |> Array.filter(fun x -> x)
                             |> Array.length

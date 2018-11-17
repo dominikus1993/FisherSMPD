@@ -8,10 +8,10 @@ let testFisher =
     testList "Classifiers" [
         testList "extractTraingSet" [
             test "1" {
-                let state = { FeaturesCount = 1; Features = [("Acer", [|[|1.|]|]); ("Test", [|[|1.|]|])] |> Map.ofList }
+                let state = { FeaturesCount = 1; Objects = [|{ ClassName = "Acer"; Features = [|1.|]}; { ClassName = "Test"; Features = [|1.|] } |] }
                 let (test, stat) = Classifiers.extractTraingSet state 50
-                Expect.equal test.Features.Count 1 ""
-                Expect.equal stat.Features.Count 1 ""
+                Expect.equal test.Objects.Length 1 ""
+                Expect.equal stat.Objects.Length 1 ""
             }
         ]
     ]

@@ -12,12 +12,9 @@ let testFisher =
                 use file = File.OpenRead("./Maple_Oak.txt")
                 let! subject = Database.read file
                 Expect.equal subject.FeaturesCount 64 ""
-                Expect.isTrue (subject.Features |> Map.containsKey "Acer") ""
-                Expect.isTrue (subject.Features |> Map.containsKey "Quercus") ""
-                Expect.equal ((subject.Features |> Map.tryFind "Acer").Value.Length) 176 ""
-                Expect.equal ((subject.Features |> Map.tryFind "Quercus").Value.Length) 608 ""
-                Expect.equal ((subject.Features |> Map.tryFind "Acer").Value |> Array.filter(fun x -> x.Length = 64) |> Array.length) 176 ""
-                Expect.equal ((subject.Features |> Map.tryFind "Quercus").Value |> Array.filter(fun x -> x.Length = 64) |> Array.length) 608 ""
+                Expect.isTrue (subject.Objects |> Array.filter(fun o -> o.ClassName = "Acer") |> Array.length = 176) ""
+                Expect.isTrue (subject.Objects |> Array.filter(fun o -> o.ClassName = "Quercus") |> Array.length = 608) ""
+                Expect.equal (subject.Objects |> Array.filter(fun o -> o.Features |> Array.length = 64) |> Array.length) (608 + 176) ""
             }
         ]
 ]
